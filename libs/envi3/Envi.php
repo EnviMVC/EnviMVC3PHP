@@ -597,7 +597,7 @@ class Envi
     {
         if (!is_file(ENVI_MVC_CACHE_PATH.$file.ENVI_ENV.'.envicc') || (
                 self::$debug &&
-                @filemtime(ENVI_MVC_APPKEY_PATH.$file) > @filemtime($dir.$file.ENVI_ENV.'.envicc')
+                @filemtime($dir.$file) > @filemtime(ENVI_MVC_CACHE_PATH.$file.ENVI_ENV.'.envicc')
             )
             ) {
             if (!is_file($dir.$file)) {
