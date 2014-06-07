@@ -18,7 +18,7 @@
  * @license    http://opensource.org/licenses/BSD-2-Clause The BSD 2-Clause License
  * @version    GIT: $Id$
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
- * @see        https://github.com/EnviMVC/EnviMVC3PHP/wiki
+ * @see        http://www.enviphp.net/
  * @since      File available since Release 1.0.0
  */
 
@@ -70,7 +70,7 @@ define('ENVI_ENV', EnviServerStatus()->getServerStatus());
  * @license    http://opensource.org/licenses/BSD-2-Clause The BSD 2-Clause License
  * @version    Release: @package_version@
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
- * @see        https://github.com/EnviMVC/EnviMVC3PHP/wiki
+ * @see        http://www.enviphp.net/
  * @since      Class available since Release 1.0.0
  */
 class redirectException extends Exception
@@ -112,7 +112,7 @@ class redirectException extends Exception
  * @license    http://opensource.org/licenses/BSD-2-Clause The BSD 2-Clause License
  * @version    Release: @package_version@
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
- * @see        https://github.com/EnviMVC/EnviMVC3PHP/wiki
+ * @see        http://www.enviphp.net/
  * @since      Class available since Release 1.0.0
  */
 class killException extends Exception
@@ -147,7 +147,7 @@ class killException extends Exception
  * @license    http://opensource.org/licenses/BSD-2-Clause The BSD 2-Clause License
  * @version    Release: @package_version@
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
- * @see        https://github.com/EnviMVC/EnviMVC3PHP/wiki
+ * @see        http://www.enviphp.net/
  * @since      Class available since Release 1.0.0
  */
 class Envi404Exception extends Exception
@@ -186,7 +186,7 @@ class Envi404Exception extends Exception
  * @license    http://opensource.org/licenses/BSD-2-Clause The BSD 2-Clause License
  * @version    Release: @package_version@
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
- * @see        https://github.com/EnviMVC/EnviMVC3PHP/wiki
+ * @see        http://www.enviphp.net/
  * @since      Class available since Release 1.0.0
  */
 class Envi403Exception extends Exception
@@ -226,7 +226,7 @@ class Envi403Exception extends Exception
  * @license    http://opensource.org/licenses/BSD-2-Clause The BSD 2-Clause License
  * @version    Release: @package_version@
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
- * @see        https://github.com/EnviMVC/EnviMVC3PHP/wiki
+ * @see        http://www.enviphp.net/
  * @since      Class available since Release 1.0.0
  */
 class EnviException extends Exception
@@ -280,7 +280,7 @@ function Envi($app = false, $debug = false)
  * @license    http://opensource.org/licenses/BSD-2-Clause The BSD 2-Clause License
  * @version    Release: @package_version@
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
- * @see        https://github.com/EnviMVC/EnviMVC3PHP/wiki
+ * @see        http://www.enviphp.net/
  * @since      Class available since Release 1.0.0
  */
 class Envi
@@ -446,10 +446,10 @@ class Envi
     /**
      * +-- デバッグモードかどうかを取得する
      *
-     * デバッグモードで実行されているかを確認し、デバッグモードならtrueそうでないならｆａｌｓｅを返します。
+     * デバッグモードで実行されているかを確認し、デバッグモードならtrueそうでないならfalseを返します。
      *
      * @access public
-     * @return boolean デバッグモードならtrueそうでないならｆａｌｓｅを返します。
+     * @return boolean デバッグモードならtrueそうでないならfalseを返します。
      */
     public function isDebug()
     {
@@ -691,7 +691,7 @@ class Envi
      * +-- ベースのURLを返します。
      *
      * @access public
-     * @return string ベースURL「」
+     * @return string ベースURL
      */
     public function getBaseUrl()
     {
