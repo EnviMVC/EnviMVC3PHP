@@ -1,6 +1,6 @@
 <?php
 /**
- * ƒ}ƒjƒ…ƒAƒ‹
+ * ãƒžãƒ‹ãƒ¥ã‚¢ãƒ«
  *
  *
  * PHP versions 5
@@ -14,19 +14,19 @@
  * @license    http://opensource.org/licenses/BSD-2-Clause The BSD 2-Clause License
  * @version    GIT: $Id$
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
- * @see        https://github.com/EnviMVC/EnviMVC3PHP/wiki
+ * @see        http://www.enviphp.net/
  * @since      File available since Release 1.0.0
  */
 
 
 
-// ƒwƒ‹ƒv•\Ž¦
+// ãƒ˜ãƒ«ãƒ—è¡¨ç¤º
 cecho('Name:', 33);
-cecho('    envi ', 34, '\n         Envi‚É‘Î‚·‚é‘€ì‚ðs‚¢‚Ü‚·');
+cecho('    envi ', 34, '\n         Enviã«å¯¾ã™ã‚‹æ“ä½œã‚’è¡Œã„ã¾ã™');
 cecho('Usage:', 33);
     echo '    envi task_name [arguments] [Options]'."\n";
 cecho('Task name:', 33);
-cecho('    unittest-go [test.yml path]              ', 32, '\n    ƒeƒXƒg‚ðŽÀs‚·‚é');
-cecho('    unittest-help                            ', 32, '\n    ‚±‚Ìƒ}ƒjƒ…ƒAƒ‹‚ðŽÀs‚·‚é');
+cecho('    unittest-go [test.yml path]              ', 32, '\n    ãƒ†ã‚¹ãƒˆã‚’å®Ÿè¡Œã™ã‚‹');
+cecho('    unittest-help                            ', 32, '\n    ã“ã®ãƒžãƒ‹ãƒ¥ã‚¢ãƒ«ã‚’å®Ÿè¡Œã™ã‚‹');
 exit;
 die;

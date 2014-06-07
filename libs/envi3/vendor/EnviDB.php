@@ -13,7 +13,7 @@
  * @license    http://opensource.org/licenses/BSD-2-Clause The BSD 2-Clause License
  * @version    GIT: $Id$
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
- * @see        https://github.com/EnviMVC/EnviMVC3PHP/wiki
+ * @see        http://www.enviphp.net/
  * @since      File available since Release 1.0.0
  */
 
@@ -28,7 +28,7 @@
  * @license    http://opensource.org/licenses/BSD-2-Clause The BSD 2-Clause License
  * @version    Release: @package_version@
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
- * @see        https://github.com/EnviMVC/EnviMVC3PHP/wiki
+ * @see        http://www.enviphp.net/
  * @since      Class available since Release 1.0.0
  */
 class EnviDBInstance
@@ -78,7 +78,7 @@ class EnviDBInstance
  * @license    http://opensource.org/licenses/BSD-2-Clause The BSD 2-Clause License
  * @version    Release: @package_version@
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
- * @see        https://github.com/EnviMVC/EnviMVC3PHP/wiki
+ * @see        http://www.enviphp.net/
  * @since      Class available since Release 1.0.0
  */
 class EnviDB
@@ -92,15 +92,15 @@ class EnviDB
 
 
     /**
-     * +-- Enviから呼ばれるメソッド。必ず作る
+     * +-- Enviから呼ばれるメソッド
      *
      * @access public
      * @static
-     * @param  $param
-     * @param  $instance_name
+     * @param array $param 接続パラメータ
+     * @param string $instance_name インスタンス名
      * @return EnviDBIBase
      */
-    public static function getConnection($param, $instance_name)
+    public static function getConnection(array $param, $instance_name)
     {
         if (isset(self::$connections[$instance_name])) {
             return self::$connections[$instance_name];
@@ -196,7 +196,7 @@ class EnviDB
  * @license    http://opensource.org/licenses/BSD-2-Clause The BSD 2-Clause License
  * @version    Release: @package_version@
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
- * @see        https://github.com/EnviMVC/EnviMVC3PHP/wiki
+ * @see        http://www.enviphp.net/
  * @since      Class available since Release 1.0.0
  */
 class EnviDBIBase
@@ -221,11 +221,11 @@ class EnviDBIBase
     /* ----------------------------------------- */
 
     /**
-     * クオートする
+     * +-- スマートにクオートする
      *
      * @access public
      * @param mixied $value クオートするデータ
-     * @return string
+     * @return string クオートされた文字列
      */
     public function quotesmart($value)
     {
@@ -247,7 +247,7 @@ class EnviDBIBase
      *
      * @access public
      * @param mixied $str クオートするデータ
-     * @return string
+     * @return string クオートされた文字列
      */
     public function quote($str)
     {
@@ -509,7 +509,7 @@ class EnviDBIBase
     /* ----------------------------------------- */
 
     /**
-     * +-- INSERT文やREPLACE分、UPDATE文を配列から実行する
+     * +-- INSERT文やREPLACE文、UPDATE文を配列から実行する
      *
      * @access public
      * @param string $table テーブル名
@@ -526,10 +526,12 @@ class EnviDBIBase
     /* ----------------------------------------- */
 
     /**
-     * +-- トランザクション中かどうか
+     * +-- トランザクション中かどうかを返します。
+     *
+     * inTransaction()と等価です。
      *
      * @access public
-     * @return boolean
+     * @return boolean トランザクション中ならTRUE
      */
     public function isTran()
     {
@@ -538,10 +540,12 @@ class EnviDBIBase
     /* ----------------------------------------- */
 
     /**
-     * +-- トランザクション中かどうか
+     * +-- トランザクション中かどうかを返します
+     *
+     * isTran()と等価です。
      *
      * @access public
-     * @return boolean
+     * @return boolean トランザクション中ならTRUE
      */
     public function inTransaction()
     {
@@ -550,10 +554,10 @@ class EnviDBIBase
     /* ----------------------------------------- */
 
     /**
-     * +-- トランザクションのネスト回数
+     * +-- トランザクションのネスト回数を返します
      *
      * @access public
-     * @return integer
+     * @return integer トランザクションのネスト回数
      */
     public function transactionCount()
     {
@@ -563,7 +567,7 @@ class EnviDBIBase
 
 
     /**
-     * +-- 接続解除
+     * +-- コネクションを解放し、DBへの接続を切断します
      *
      * @access public
      * @return void
@@ -680,11 +684,12 @@ class EnviDBIBase
         $this->disconnect();
     }
     /* ----------------------------------------- */
+
     /**
      * +-- 最後に実行したSQLを取得する
      *
      * @access      public
-     * @return      void
+     * @return      string
      */
     public function getLastQuery()
     {
