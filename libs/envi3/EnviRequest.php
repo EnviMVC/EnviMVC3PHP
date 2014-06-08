@@ -2,10 +2,13 @@
 /**
  * リクエストを管理するクラス
  *
- * EnviRequestはユーザーからのパラメータの受け渡しと、ActionControllerからViewControllerへのパラメータの受け渡しを行うためのクラスです。
+ * EnviRequestはユーザーからのパラメータの受け渡しと、ActionControllerからViewControllerへのパラメータ、データの受け渡しを行うためのクラスです。
+ * setAttributeされた値は、同一リクエスト内であれば、どのオブジェクトでも、どのメソッドでもその値を、getAttribute出来るようになります。
  * staticで定義されているため、Envi PHP上のどこからでもアクセスすることが出来ますが、ActionControllerおよび、ViewController以外からの参照はしない方が、エレガントなコードになります。
+ * EnviMVCの設計思想では、EnviRequest::setAttribute()される値は、すべてvalidatorを通した、安全な値であることを保証する必要があります。
  *
- * 主に三種類
+ *
+ * 提供する機能は主に下記の四種類です。
  *
  *  XXXParameter
  *   * ユーザーからGETやPOSTで渡ってきた値を取得します。
@@ -15,6 +18,7 @@
  * *  XXXError
  *   * ActionControllerから、ViewControllerへの値の受け渡しを行う点では、XXXAttributeと同じですが、XXXErrorでは、エラーの情報をViewControllerへと受け渡します。
  *   * validatorを使用した場合は、自動的に値が入ります。
+ * * リクエストされたor現在実行中のアクション名やモジュール名を取得する。
  *
  * PHP versions 5
  *
@@ -63,7 +67,17 @@ class EnviRequest
     public static $_module_name = '';
     public static $_action_name = '';
 
+    /**
+     * EnviRequest::getParameter()、EnviRequest::hasParameter()で使用。POSTデータの取得
+     *
+     * @var         var_type
+     */
     const POST = 1;
+    /**
+     * EnviRequest::getParameter()、EnviRequest::hasParameter()で使用。GETデータの取得
+     *
+     * @var         var_type
+     */
     const GET  = 2;
 
     /**
@@ -71,6 +85,7 @@ class EnviRequest
      *
      * @access      private
      * @return      void
+     * @doc_ignore
      */
     private function __construct()
     {
@@ -80,9 +95,14 @@ class EnviRequest
     /**
      * +-- リクエストされたモジュール名を返す
      *
+     * リクエストされたモジュール名（つまり最初に実行されたモジュール名）を返します
+     *
      * @access public
      * @static
-     * @return string
+     * @return string リクエストされたモジュール名
+     * @see EnviRequest::getRequestAction()
+     * @see EnviRequest::getThisAction()
+     * @see EnviRequest::getThisModule()
      */
     public static function getRequestModule()
     {
@@ -93,9 +113,14 @@ class EnviRequest
     /**
      * +-- リクエストされたアクション名を返す
      *
+     * リクエストされたアクション名（つまり最初に実行されたActionController名）を返します
+     *
      * @access public
      * @static
-     * @return string
+     * @return string リクエストされたアクション名
+     * @see EnviRequest::getRequestModule()
+     * @see EnviRequest::getThisAction()
+     * @see EnviRequest::getThisModule()
      */
     public static function getRequestAction()
     {
@@ -106,9 +131,16 @@ class EnviRequest
     /**
      * +-- 実行中のモジュール名を返す
      *
+     * 実行中のモジュール名を返します。
+     * 通常は、EnviRequest::getRequestModule()と等価となりますが、
+     * ActionChainやforwardでActionを異動した場合は、現在実行中のモジュール名となります。
+     *
      * @access public
      * @static
-     * @return string
+     * @return string 現在実行中のモジュール名
+     * @see EnviRequest::getRequestModule()
+     * @see EnviRequest::getRequestAction()
+     * @see EnviRequest::getThisAction()
      */
     public static function getThisModule()
     {
@@ -117,12 +149,17 @@ class EnviRequest
     /* ----------------------------------------- */
 
     /**
-     * +-- 実行中のアクション名を返す
+     * +-- 現在実行中のアクションコントローラー名を返します
+     *
+     * 通常は、EnviRequest::getRequestAction()と等価となりますが、
+     * ActionChainやforwardでActionを異動した場合は、現在実行中のAction名となります。
      *
      * @access public
      * @static
-     * @param
-     * @return string
+     * @return string 現在実行中のアクションコントローラー名
+     * @see EnviRequest::getRequestModule()
+     * @see EnviRequest::getRequestAction()
+     * @see EnviRequest::getThisModule()
      */
     public static function getThisAction()
     {
@@ -133,9 +170,16 @@ class EnviRequest
     /**
      * +-- 現在の言語を返す
      *
+     * 国際化機能を使用している場合、現在指定されている言語を返します。
+     * 国際化機能を使用していない場合は、デフォルトの言語を返します。
+     *
      * @access public
      * @static
-     * @return string
+     * @return string 現在の言語
+     * @see EnviRequest::getRequestModule()
+     * @see EnviRequest::getRequestAction()
+     * @see EnviRequest::getThisModule()
+     * @see EnviRequest::getThisAction()
      */
     public static function getI18n()
     {
@@ -151,6 +195,7 @@ class EnviRequest
      * @access public
      * @static
      * @return void
+     * @doc_ignore
      */
     public static function initialize()
     {
@@ -195,11 +240,17 @@ class EnviRequest
     /* ----------------------------------------- */
 
     /**
-     * +-- パースしたPATH_INFOのうち、フレームワークで使用されなかった分を取得する
+     * +-- パースしたPATH_INFOのうち、フレームワークで使用されなかった分を取得します
+     *
+     * EnviMVCではコントロールにPATH_INFOを使用していますが、フレームワークで使用しなかった分のPATH_INFOを展開済みの配列として取得できます。
+     * 単にPATH_INFOを取得したい場合は、スーパーグローバル変数を使用して下さい。
      *
      * @static
      * @access public
-     * @return array
+     * @return array 展開済みのPATH_INFO
+     * @see EnviRequest::getRequestModule()
+     * @see EnviRequest::getRequestAction()
+     * @see EnviRequest::getI18n()
      */
     public static function getPathInfo()
     {
@@ -209,30 +260,59 @@ class EnviRequest
 
 
     /**
-     * +-- データをAttributeします
+     * +-- データコンテナにデータを保存します
      *
-     * @param string $name Attribute名
+     * データコンテナにデータを保存します。
+     * 保存されたデータは、どこからでも取り出すことが出来るようになります。
+     *
+     * @param string $key Attribute名
      * @param mixd $data 値
      * @return void
+     * @see EnviRequest::getAttribute()
+     * @see EnviRequest::hasAttribute()
+     * @see EnviRequest::removeAttribute()
+     * @see EnviUser::setAttribute()
+     * @see EnviUser::getAttribute()
+     * @see EnviUser::hasAttribute()
+     * @see EnviUser::removeAttribute()
      */
-    public static function setAttribute($name, $data)
+    public static function setAttribute($key, $data)
     {
-        self::$_attribute[$name] = $data;
+        self::$_attribute[$key] = $data;
     }
     /* ----------------------------------------- */
 
 
+    /**
+     * +-- アトリビューターの値をすべて入れ替えます
+     *
+     * Fw内部では使用しますが、通常の処理では使用しません。
+     *
+     * @param mixd $data 値
+     * @return void
+     * @doc_ignore
+     */
     public static function setAttributeAll($data)
     {
         self::$_attribute = $data;
     }
+    /* ----------------------------------------- */
 
 
     /**
-     * Attributeしたデータを取り出します
+     * +-- データコンテナに保存したデータを取り出します
+     *
+     * Attribute名を指定して、データコンテナに保存したしたデータを取り出します
      *
      * @param string $key Attribute名
-     * @return mixd
+     * @return mixd 保存したデータ
+     * @see EnviRequest::setAttribute()
+     * @see EnviRequest::hasAttribute()
+     * @see EnviRequest::removeAttribute()
+     * @see EnviUser::setAttribute()
+     * @see EnviUser::getAttribute()
+     * @see EnviUser::hasAttribute()
+     * @see EnviUser::removeAttribute()
      */
     public static function getAttribute($key)
     {
@@ -257,11 +337,14 @@ class EnviRequest
     /* ----------------------------------------- */
 
     /**
-     * +-- Attributeした情報をすべて取り出します
+     * +-- データコンテナに保存した情報をすべて取り出します
+     *
+     * setAttributeされた値のすべてを配列で取り出します。
      *
      * @access public
      * @static
-     * @return array
+     * @return array データコンテナのすべての情報
+     * @see EnviRequest::getAttribute()
      */
     public static function getAttributeAll()
     {
@@ -270,42 +353,79 @@ class EnviRequest
     /* ----------------------------------------- */
 
     /**
-     * +-- Attributeされているか確認します
+     * +-- データコンテナに保存されているか確認します
+     *
+     * データコンテナに保存されているか確認します。
+     * データコンテナに保存されているか確認し、
+     * 保存されていればtrue,そうで無いならfalseを返します。
      *
      * @access public
      * @static
-     * @param string $name Attribute名
-     * @return boolean
+     * @param string $key 確認するAttribute名
+     * @return boolean 保存されていればtrue
+     * @see EnviRequest::getAttribute()
+     * @see EnviRequest::setAttribute()
+     * @see EnviRequest::removeAttribute()
+     * @see EnviUser::setAttribute()
+     * @see EnviUser::getAttribute()
+     * @see EnviUser::hasAttribute()
+     * @see EnviUser::removeAttribute()
      */
-    public static function hasAttribute($name)
+    public static function hasAttribute($key)
     {
-        return isset(self::$_attribute[$name]);
+        return isset(self::$_attribute[$key]);
     }
     /* ----------------------------------------- */
 
     /**
-     * +-- Attributeされているデータを削除します
+     * +-- データコンテナに保存されているデータを削除します
+     *
+     * Attribute名を指定して、データコンテナに保存されている、データを削除します。
      *
      * @access public
      * @static
-     * @param string $name Attribute名
+     * @param string $key 削除するAttribute名
      * @return void
+     * @see EnviRequest::getAttribute()
+     * @see EnviRequest::setAttribute()
+     * @see EnviRequest::hasAttribute()
+     * @see EnviUser::setAttribute()
+     * @see EnviUser::getAttribute()
+     * @see EnviUser::hasAttribute()
+     * @see EnviUser::removeAttribute()
      */
-    public static function removeAttribute($name)
+    public static function removeAttribute($key)
     {
-        if (isset(self::$_attribute[$name])) {
-            unset(self::$_attribute[$name]);
+        if (isset(self::$_attribute[$key])) {
+            unset(self::$_attribute[$key]);
         }
     }
     /* ----------------------------------------- */
 
     /**
-     * +-- Attributeされているデータを全削除します
+     * +-- データコンテナに保存されているデータを全削除します
      *
+     * setAttributeされたすべてのデータを空にします。
+     *
+     * {@example}
+     * <?php
+     * EnviRequest::setAttribute('key', 10);
+     * var_dump(EnviRequest::getAttribute('key'));
+     * EnviRequest::cleanAttributes();
+     * var_dump(EnviRequest::getAttribute('key', false));
+     * ?>
+     * {/@example}
+     *
+     * {@example_result}
+     * int(10)
+     * bool(false)
+     * {/@example_result}
      * @access public
      * @static
-     * @param string $name Attribute名
      * @return void
+     * @see EnviRequest::getAttribute()
+     * @see EnviRequest::setAttribute()
+     * @see EnviRequest::hasAttribute()
      */
     public static function cleanAttributes()
     {
@@ -316,12 +436,16 @@ class EnviRequest
     /**
      * +-- $_GETもしくは、$_POSTから値を取得します。
      *
+     * ユーザーからのリクエストデータを直接取得します。
+     * セキュリティの観点から、validatorを通した値を参照する方が望ましいです。
+     *
      * @access public
      * @static
      * @param string|int $name 取り出すParameterのkey
      * @param mixed $default_parameter 値が取得できなかった場合のデフォルトの値(OPTIONAL:false)
      * @param int $post_only 取得するhttp methodを指定する。 EnviRequest::POST,EnviRequest::GETが指定できます。bit演算で、両方指定することも出来ます。
-     * @return mixed
+     * @return mixed ユーザーからのリクエストデータ
+     * @see EnviRequest::hasParameter()
      */
     public static function getParameter($name, $default_parameter = false, $post_only = 3)
     {
@@ -334,13 +458,17 @@ class EnviRequest
     }
 
     /**
-     * +-- 存在するパラメーターかどうかを確認する
+     * +-- 存在するパラメーターかどうかを確認します
+     *
+     * ユーザーからのリクエストデータを直接参照し、ユーザーから該当データが送られてきているかを確認します。
+     * 送られてきているなら、true。そうで無いなら、falseを返します。
      *
      * @access public
      * @static
      * @param string|int $name 存在確認を行うParameterのkey
      * @param int $post_only 存在確認を行うhttp methodを指定する。 EnviRequest::POST,EnviRequest::GETが指定できます。bit演算で、両方指定することも出来ます。
-     * @return boolean
+     * @return boolean パラメータが存在するならtrue
+     * @see EnviRequest::getParameter()
      */
     public static function hasParameter($name, $post_only = 3)
     {
@@ -357,9 +485,12 @@ class EnviRequest
 
 
     /**
-     * +-- エラーをセットする
+     * +-- エラーをセットします。
      *
-     * 主にEnviValidatorクラスからコールされます。
+     * エラー情報をセットします。
+     * 主にEnviValidatorクラスからコールされますが、アクションコントローラー内で、EnviValidatorを介さずバリデーションを行った場合は、
+     * このメソッドを使用して、エラーコンテナにエラー情報をセットできます。
+     * EnviValidatorを使用した場合、エラー名は、フォーム名となるため、特に理由が無い場合はエラー名は、フォーム名と合わせて下さい。
      *
      * @access public
      * @static
@@ -368,6 +499,12 @@ class EnviRequest
      * @param integer $code エラーコード
      * @param string $message エラーメッセージ
      * @return void
+     * @see EnviRequest::getErrors()
+     * @see EnviRequest::getErrorsByRef()
+     * @see EnviRequest::getErrorCodesByRef()
+     * @see EnviRequest::getError()
+     * @see EnviRequest::hasErrors()
+     * @see EnviRequest::hasError()
      */
     public static function setError($name, $validator, $code, $message)
     {
@@ -378,11 +515,19 @@ class EnviRequest
 
 
     /**
-     * +-- エラーを全て取得
+     * +-- セットされたエラーを全て取得します
+     *
+     * エラーコンテナに保存されたエラー情報を展開し、配列として返します。
      *
      * @access public
      * @static
-     * @return array
+     * @return array セットされたすべてのエラー
+     * @see EnviRequest::setError()
+     * @see EnviRequest::getErrorsByRef()
+     * @see EnviRequest::getErrorCodesByRef()
+     * @see EnviRequest::getError()
+     * @see EnviRequest::hasErrors()
+     * @see EnviRequest::hasError()
      */
     public static function getErrors()
     {
@@ -404,11 +549,27 @@ class EnviRequest
 
 
     /**
-     * +-- エラーを全て参照受け渡しで取得
+     * +-- エラーを全て参照受け渡しで取得します
+     *
+     * エラメッセージ配列を、参照渡しで取得します。
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.alert .alert-warning}
+     * __注意__ 参照形式で取得するため、値を書き換えると、エラーメッセージ全体も書き換わります。
+     *
+     * また、EnviRequest::getErrors ( )とは取得形式が違います。
+     *
+     * 単純に画面表示用にデータを取得するなら、[EnviRequest::getErrors](/c/man/v3/reference/EnviRequest/class/getErrors)を使用して下さい。
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      *
      * @access public
      * @static
-     * @return array
+     * @return array セットされたエラーメッセージ
+     * @see EnviRequest::setError()
+     * @see EnviRequest::getErrors()
+     * @see EnviRequest::getErrorCodesByRef()
+     * @see EnviRequest::getError()
+     * @see EnviRequest::hasErrors()
+     * @see EnviRequest::hasError()
      */
     public static function &getErrorsByRef()
     {
@@ -420,9 +581,26 @@ class EnviRequest
     /**
      * +-- エラーコードを全て参照受け渡しで取得
      *
+     * エラーコード配列を、参照渡しで取得します。
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.alert .alert-warning}
+     * __注意__ 参照形式で取得するため、値を書き換えると、エラーコード全体も書き換わります。
+     *
+     * また、EnviRequest::getErrors ( )とは取得形式が違います。
+     *
+     * 単純に画面表示用にデータを取得するなら、[EnviRequest::getErrors](/c/man/v3/reference/EnviRequest/class/getErrors)を使用して下さい。
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
      * @access public
      * @static
-     * @return array
+     * @return array セットされたエラーコード
+     * @see EnviRequest::setError()
+     * @see EnviRequest::getErrors()
+     * @see EnviRequest::getErrorsByRef()
+     * @see EnviRequest::getError()
+     * @see EnviRequest::hasErrors()
+     * @see EnviRequest::hasError()
      */
     public static function &getErrorCodesByRef()
     {
@@ -433,10 +611,13 @@ class EnviRequest
     /**
      * +-- エラーメッセージをすべて配列で書き換える
      *
+     * エラーメッセージをすべて配列で書き換える
+     *
      * @access public
      * @static
      * @params array $data
      * @return void
+     * @doc_ignore
      */
     public static function setErrorsAll(array $data)
     {
@@ -447,10 +628,13 @@ class EnviRequest
     /**
      * +-- エラーコードをすべて配列で書き換える
      *
+     * エラーコードをすべて配列で書き換える
+     *
      * @access public
      * @static
      * @param array $data
      * @return void
+     * @doc_ignore
      */
     public static function setErrorCodesAll(array $data)
     {
@@ -459,12 +643,21 @@ class EnviRequest
     /* ----------------------------------------- */
 
     /**
-     * +-- エラーを指定して取得
+     * +-- エラー名を指定してエラー配列を取得
+     *
+     * エラー名を指定して、エラー配列を取得します。
+     * EnviValidatorを使用した場合、エラー名は、フォーム名となります。
      *
      * @access public
      * @static
      * @param string $name エラー名
-     * @return array
+     * @return array 対応するエラー配列
+     * @see EnviRequest::setError()
+     * @see EnviRequest::getErrors()
+     * @see EnviRequest::getErrorsByRef()
+     * @see EnviRequest::getErrorCodesByRef()
+     * @see EnviRequest::hasErrors()
+     * @see EnviRequest::hasError()
      */
     public static function getError($name)
     {
@@ -476,9 +669,17 @@ class EnviRequest
     /**
      * +-- エラーがあるかどうか確認します
      *
+     * エラーがあるかどうか確認し、あるならtrue、ないならfalseを返します。
+     *
      * @access public
      * @static
-     * @return boolean
+     * @return boolean エラーがあるかどうか
+     * @see EnviRequest::setError()
+     * @see EnviRequest::getErrors()
+     * @see EnviRequest::getErrorsByRef()
+     * @see EnviRequest::getErrorCodesByRef()
+     * @see EnviRequest::getError()
+     * @see EnviRequest::hasError()
      */
     public static function hasErrors()
     {
@@ -489,10 +690,19 @@ class EnviRequest
     /**
      * +-- 指定したエラーがあるかどうか確認します
      *
+     * 指定したエラーがあるかどうか確認し、あるならtrue、ないならfalseを返します。
+     *
+     *
      * @access public
      * @static
      * @param string $name エラー名
-     * @return boolean
+     * @return boolean 指定したエラーがあるかどうか
+     * @see EnviRequest::setError()
+     * @see EnviRequest::getErrors()
+     * @see EnviRequest::getErrorsByRef()
+     * @see EnviRequest::getErrorCodesByRef()
+     * @see EnviRequest::getError()
+     * @see EnviRequest::hasErrors()
      */
     public static function hasError($name)
     {

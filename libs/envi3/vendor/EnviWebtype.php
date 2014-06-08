@@ -19,7 +19,9 @@
 
 
 /**
- * アクセス者の情報を解析
+ * ユーザーのブラウザ情報を解析
+ *
+ * リクエスト元のブラウザ情報や、ホスト情報を解析して、使用端末情報を取得します。
  *
  * @package    Envi3
  * @subpackage WebType
@@ -99,7 +101,16 @@ class EnviWebType
         $this->remote_host = @gethostbyaddr($_SERVER['REMOTE_ADDR']);
     }
 
-
+    /**
+     * +-- UserAgentから、OSやブラウザ情報を取得します
+     *
+     * UserAgentから、OSやブラウザ情報を取得します。
+     * 引数が省略された場合は、リクエストされたユーザーのUserAgentが自動的に参照されます。
+     *
+     * @access      public
+     * @param       string $user_agent OPTIONAL:NULL
+     * @return      array
+     */
     public function getUserInfo($user_agent = NULL)
     {
         $user_agent = $user_agent ? $user_agent : $_SERVER['HTTP_USER_AGENT'];
@@ -333,8 +344,19 @@ class EnviWebType
         $this->_cash["getUserInfo"][$user_agent] = $blo;
         return $blo;
     }
+    /* ----------------------------------------- */
 
-
+    /**
+     * +-- リモートホストを加味したユーザー端末判定
+     *
+     * リモートホストやユーザーエージェントから、OSやブラウザ情報を取得します。
+     * 引数が省略された場合は、リクエストされたユーザーのUserAgentが自動的に参照されます。
+     *
+     * @access      public
+     * @param       string $user_agent OPTIONAL:NULL
+     * @param       string $remote_host OPTIONAL:NULL
+     * @return      string
+     */
     public function getWeb($user_agent = NULL, $remote_host = NULL)
     {
         $user_agent = $user_agent === NULL ? $_SERVER['HTTP_USER_AGENT'] : $user_agent;
@@ -390,7 +412,17 @@ class EnviWebType
         $this->_cash['getWeb'][$user_agent] = $web;
         return $web;
     }
+    /* ----------------------------------------- */
 
+    /**
+     * +-- リクエストされたユーザーの端末固有情報を取得します
+     *
+     * リクエストされたユーザーの端末固有情報を取得します。
+     * 主にガラケーが出している、端末情報を配列で取得します。
+     *
+     * @access      public
+     * @return      array
+     */
     public function getCharacter()
     {
         if (isset($this->_cash['getCharacter'])) {
@@ -597,4 +629,5 @@ class EnviWebType
         $this->_cash['getCharacter'] = $info;
         return $info;
     }
+    /* ----------------------------------------- */
 }

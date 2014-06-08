@@ -424,7 +424,7 @@ class EnviSendMail
      *
      * 本文テンプレートを読み込む
      *
-     * @see msg,footerpath
+     * @param string $template
      * @return boolean
      */
     public function setBody($template)
@@ -461,8 +461,8 @@ class EnviSendMail
     /**
      * 送信者設定
      *
-     * @param strings $address アドレス
-     * @param strings $name 名前
+     * @param string $address アドレス
+     * @param string $name 名前
      */
     public function setFrom($address, $name = NULL)
     {
@@ -476,7 +476,7 @@ class EnviSendMail
     /**
      * キーワード設定
      *
-     * @param strings $keyword キーワード
+     * @param string $keyword キーワード
      */
     public function setKeyword($keyword)
     {
@@ -486,7 +486,7 @@ class EnviSendMail
     /**
      * 件名設定
      *
-     * @param strings $subject 件名
+     * @param string $subject 件名
      */
     public function setSubject($subject)
     {
@@ -496,8 +496,8 @@ class EnviSendMail
     /**
      * 宛先設定
      *
-     * @param strings $address アドレス
-     * @param strings $name 名前
+     * @param string $address アドレス
+     * @param string $name 名前
      */
     public function setTo($address, $name = NULL)
     {
@@ -513,8 +513,8 @@ class EnviSendMail
     /**
      * Cc設定
      *
-     * @param strings $address アドレス
-     * @param strings $name 名前
+     * @param string $address アドレス
+     * @param string $name 名前
      */
     public function setCc($address, $name=NULL)
     {
@@ -530,8 +530,8 @@ class EnviSendMail
     /**
      * Bcc設定
      *
-     * @param strings $address アドレス
-     * @param strings $name 名前
+     * @param string $address アドレス
+     * @param string $name 名前
      */
     public function setBcc($address, $name = NULL)
     {
@@ -551,7 +551,7 @@ class EnviSendMail
      * メールの内容を整える
      *
      * @access public
-     * @param string &$msg
+     * @param string $msg
      * @param boolean $is_kana OPTIONAL:false
      * @param boolean $isPre OPTIONAL:false
      * @return string
@@ -570,9 +570,10 @@ class EnviSendMail
     /**
      * 添付する
      *
-     * @param strings $data 添付データ
-     * @param strings $Filename 添付ファイルの名前
-     * @param strings $Type mimeヘッダ
+     * @param string $data 添付データ
+     * @param string $Filename 添付ファイルの名前
+     * @param string $Type mimeヘッダ
+     * @return void
      */
     public function addAttachment(&$data, $Filename = '', $Type = 'application/octet-stream')
     {
@@ -590,11 +591,11 @@ class EnviSendMail
     /**
      * ファイルを読み込んで添付する
      *
-     * @param strings $data 添付データ
-     * @param strings $Filename 添付ファイルの名前
-     * @param strings $Type mimeヘッダ
+     * @param string $file 添付データ
+     * @param string $rename 添付ファイルの名前
+     * @param string $Type mimeヘッダ
      */
-    public function getAttachment($file, $rename = false, $Type = 'application/octet-stream')
+    public function setAttachment($file, $rename = false, $Type = 'application/octet-stream')
     {
         $data = file_get_contents($file);
         $this->addAttachment(

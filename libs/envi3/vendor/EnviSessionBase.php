@@ -114,6 +114,7 @@ interface EnviSessionBaseInterface
     /**
      * +-- session_set_save_handler用destroy
      *
+     * @param       string $key
      * @return      void
      */
     public function destroy($key);
@@ -131,6 +132,7 @@ interface EnviSessionBaseInterface
      *
      * @param       string $key
      * @param       mixed $value
+     * @param       integer $expire
      * @return      void
      */
     public function setAttribute($key, $value, $expire = 3600);

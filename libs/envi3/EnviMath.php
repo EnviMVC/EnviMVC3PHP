@@ -74,9 +74,9 @@ class EnviMath
      *
      * @access public
      * @static
-     * @param  $value
-     * @param  $precision OPTIONAL:0
-     * @param  $mode OPTIONAL:PHP_ROUND_HALF_UP
+     * @param float $value
+     * @param integer $precision OPTIONAL:0
+     * @param integer $mode OPTIONAL:PHP_ROUND_HALF_UP
      * @return float
      */
     public static function round($value, $precision = 0, $mode = PHP_ROUND_HALF_UP)

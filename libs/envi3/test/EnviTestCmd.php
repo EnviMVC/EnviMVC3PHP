@@ -15,6 +15,7 @@
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
  * @see        http://www.enviphp.net/
  * @since      File available since Release 1.0.0
+ * @doc_ignore
  */
 
 if (!isset($envi_cmd)) {
@@ -165,11 +166,14 @@ $EnviTest->execute();
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
  * @see        http://www.enviphp.net/
  * @since      Class available since Release 1.0.0
+ * @doc_ignore
  */
 class EnviTest
 {
     public $system_conf;
     private static $instance;
+
+    protected $parser;
 
     /**
      * +-- コンストラクタ
@@ -191,10 +195,23 @@ class EnviTest
         $scenario              = new $this->system_conf['scenario']['class_name'];
         $scenario->system_conf = $this->system_conf;
 
+
         $arr = $scenario->execute();
+        // カバレッジ
+        $code_coverage = false;
+        if ($this->system_conf['code_coverage']['use']) {
+            if (!class_exists('EnviCodeCoverage', false)) {
+                include dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.'util'.DIRECTORY_SEPARATOR.'EnviCodeCoverage.php';
+            }
+            $code_coverage = EnviCodeCoverage::factory();
+            $code_coverage->start();
+        }
         foreach ($arr as $test_val) {
             include_once $test_val['class_path'];
             $test_obj = new $test_val['class_name'];
+            if ($code_coverage !== false) {
+                $test_obj->setCodeCoverage($code_coverage);
+            }
             $test_obj->system_conf = $this->system_conf;
             $methods = array();
             if (isset($test_val['methods']) && count($test_val['methods'])) {
@@ -202,7 +219,7 @@ class EnviTest
             }
 
 
-            $docs_class = $this->parseClassDocsTag($test_val['class_path']);
+            $docs_class = $this->getMethodDocsTagSimple($test_val['class_path']);
             foreach ($docs_class as $method => $docs) {
                 if (isset($docs['test'])) {
                     $methods[$method] = true;
@@ -243,6 +260,13 @@ class EnviTest
             }
         }
         echo round(microtime(true) - $start_time, 5)." : test end \r\n";
+        if ($code_coverage !== false) {
+            $code_coverage_data = $code_coverage->getCodeCoverage();
+            echo $code_coverage_data['cover_rate']."% : test coverage \r\n";
+            if ($this->system_conf['code_coverage']['save_path']) {
+                file_put_contents($this->system_conf['code_coverage']['save_path'], json_encode($code_coverage_data, true));
+            }
+        }
     }
 
     public function parseYml($file, $dir = ENVI_MVC_APPKEY_PATH)
@@ -261,29 +285,27 @@ class EnviTest
         return $res;
     }
 
-
-
-
-    protected function parseClassDocsTag($file)
+    /**
+     * +-- コードパーサを返す
+     *
+     * @access      public
+     * @return      void
+     */
+    public function parser()
     {
-        $pattern = '/\n *\/\*\*\n( *\*.*\n)+[\n ]*public[\n ]*function[\n ]*[^(]+/';
-
-        preg_match_all($pattern , file_get_contents($file), $matches);
-        $class_list = array();
-        foreach ($matches[0] as $val) {
-            mb_ereg('public[\n ]*function[\n ]*([^(]+)', $val, $match);
-            $class_name = $match[1];
-            preg_match_all('/@(.*)\n/' ,$val, $match);
-            $docs = array();
-            foreach ($match[1] as $doc) {
-                $doc = mb_ereg_replace(' +', ' ', $doc);
-                $doc = explode(' ', $doc);
-                $tag = trim(array_shift($doc));
-                $docs[$tag][] = $doc;
+        if ($this->parser) {
+            if (!class_exists('EnviCodeParser', false)) {
+                include dirname(dirname(__FILE__)).'/util/EnviCodeParser.php';
             }
-            $class_list[$class_name] = $docs;
+            $this->parser = new EnviCodeParser;
         }
-        return $class_list;
+       return $this->parser;
+    }
+    /* ----------------------------------------- */
+
+    protected function getMethodDocsTagSimple($file_name)
+    {
+        return $this->parser()->getMethodDocsTagSimple($file_name);
     }
 
     /**
@@ -291,8 +313,7 @@ class EnviTest
      *
      * @access public
      * @static
-     * @param  $app OPTIONAL:false
-     * @param  $debug OPTIONAL:false
+     * @param boolean $app OPTIONAL:false
      * @return Envi
      */
     public static function singleton($app = false)

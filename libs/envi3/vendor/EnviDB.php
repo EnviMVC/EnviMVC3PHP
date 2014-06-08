@@ -14,7 +14,7 @@
  * @version    GIT: $Id$
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
  * @see        http://www.enviphp.net/
- * @since      File available since Release 1.0.0
+ * @since      File available since Release 3.1.0
  */
 
 /**
@@ -29,7 +29,7 @@
  * @version    Release: @package_version@
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
  * @see        http://www.enviphp.net/
- * @since      Class available since Release 1.0.0
+ * @since      Class available since Release 3.1.0
  */
 class EnviDBInstance
 {
@@ -145,9 +145,10 @@ class EnviDB
      *
      * @access public
      * @static
-     * @param  $dsn
-     * @param  $user OPTIONAL:false
-     * @param  $password OPTIONAL:false
+     * @param string|array $dsn
+     * @param string|boolean $user OPTIONAL:false
+     * @param string|boolean $password OPTIONAL:false
+     * @param boolean $is_pool OPTIONAL:false
      * @return EnviDBIBase
      */
     public static function connect($dsn, $user = false, $password = false, $is_pool = false)
@@ -258,8 +259,83 @@ class EnviDBIBase
     /**
      * +-- インスタンス全体のフェッチモードを指定する
      *
+     * フェッチモードは下記から選択できます。
+     *
+     *
+     * PDO::FETCH_LAZY (integer)
+     * : 取得する方法として、 結果セットが返すカラム名と同じ名前の変数を有するオブジェクトとして各行を返す方法を 指定します。 PDO::FETCH_LAZY は、アクセスされたものと同じ名前のオブジェクト変数を作成します。 PDOStatement::fetchAll() の中では使えません。
+     *
+     *
+     * PDO::FETCH_ASSOC (integer)
+     * : 結果セットの対応するカラム名にふられているものと同じキーを付けた 連想配列として各行を返す取得方法を指定します。 もし結果セットが複数のカラムを同名で含む場合、 PDO::FETCH_ASSOC はカラム名毎に 1 つの値のみ返します。
+     *
+     *
+     * PDO::FETCH_NAMED (integer)
+     * : 結果セットの対応するカラム名にふられているものと同じキーを付けた 連想配列として各行を返す取得方法を指定します。 もし結果セットが複数のカラムを同名で含む場合、 PDO::FETCH_NAMED はカラム名毎に値の配列を返します。
+     *
+     *
+     * PDO::FETCH_NUM (integer)
+     * : 結果セットの対応するカラム番号にふられているものと同じ添字を付けた 配列として各行を返す取得方法を指定します。番号は0から始まります。
+     *
+     *
+     * PDO::FETCH_BOTH (integer)
+     * : 結果セットと同じカラム名と0から始まるカラム番号を付けた配列として各行を返す 方法を指定します。
+     *
+     *
+     * PDO::FETCH_OBJ (integer)
+     * : 結果セットが返すカラム名と同じ名前のプロパティを有する オブジェクトとして各行を返す方法を指定します。
+     *
+     *
+     * PDO::FETCH_BOUND (integer)
+     * : 結果セットのカラムの値を PDOStatement::bindParam() または PDOStatement::bindColumn() メソッドでバインドされた PHP変数に代入し、TRUEを返すという取得方法を指定します。
+     *
+     *
+     * PDO::FETCH_COLUMN (integer)
+     * : 結果セットの次の行から指定された一つのカラムのみを返す取得方法を指定します。
+     *
+     *
+     * PDO::FETCH_CLASS (integer)
+     * : カラムをクラスのプロパティにマップしつつ、 指定されたクラスの新規インスタンスを返す取得方法を指定します。
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.alert .alert-warning}
+     * 注意: 要求されたクラスにプロパティが存在しない場合は、マジックメソッド __set() がコールされます。
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     * PDO::FETCH_INTO (integer)
+     * : カラムをクラスのプロパティにマップしつつ、 指定されたクラスの既存のインスタンスを更新する取得方法を指定します。
+     *
+     *
+     * PDO::FETCH_FUNC (integer)
+     * : データをその場で扱う方法を完全にカスタマイズできるようにします (PDOStatement::fetchAll() の中でしか使えません)。
+     *
+     *
+     * PDO::FETCH_GROUP (integer)
+     * : 値で返すグループ。 PDO::FETCH_COLUMN あるいは PDO::FETCH_KEY_PAIR と組み合わせます。
+     *
+     *
+     * PDO::FETCH_UNIQUE (integer)
+     * : 一意な値だけを取得します。
+     *
+     *
+     * PDO::FETCH_KEY_PAIR (integer)
+     * : ふたつのカラムからなる結果を配列で取得します。最初のカラムの値がキー、二番目のカラムの内容が値となります。 PHP 5.2.3 以降で使用可能です。
+     *
+     *
+     * PDO::FETCH_CLASSTYPE (integer)
+     * : 最初のカラムの値からクラス名を決定します。
+     *
+     *
+     * PDO::FETCH_SERIALIZE (integer)
+     * : PDO::FETCH_INTO と同様ですが、 シリアライズした文字列としてオブジェクトを提供します。 PHP 5.1.0 以降で使用可能です。 PHP 5.3.0 以降、このフラグを設定した場合はコンストラクタが呼ばれないようになりました。
+     *
+     *
+     * PDO::FETCH_PROPS_LATE (integer)
+     * : コンストラクタを呼んでからプロパティを設定します。 PHP 5.2.0 以降で使用可能です。
+     *
+     *
+     *
      * @access public
-     * @param  $fetch_mode
+     * @param integer $fetch_mode フェッチモード
      * @return void
      */
     public function setFetchMode($fetch_mode)
@@ -271,9 +347,16 @@ class EnviDBIBase
     /**
      * +-- 最後にインサートされたIDを返す
      *
+     * 最後に挿入された行の ID、 あるいはシーケンスオブジェクトから次の値をを返します。
+     * これは、構成しているドライバに依存します。例えば PDO_PGSQL の場合、name パラメータにシーケンスオブジェクト名を指定する必要があります。
+     *
+     * もし name パラメータにシーケンス名が指定されなかった場合、 PDO::lastInsertId() はデータベースに挿入された最後の行の行IDに相当する文字列を返します。
+     *
+     * もし name パラメータにシーケンス名が指定された場合、 PDO::lastInsertId() は指定されたシーケンスオブジェクトから取得した最後の値に相当する 文字列を返します。
+     *
      * @access public
-     * @param  $name OPTIONAL:NULL
-     * @return integer|boolean
+     * @param string  $name ID が返されるべきシーケンスオブジェクト名を指定します。 OPTIONAL:NULL
+     * @return integer|boolean データベースに挿入された行IDに相当する文字列
      */
     public function lastInsertId($name = NULL)
     {
@@ -427,7 +510,7 @@ class EnviDBIBase
      *
      * @access public
      * @param string $statement SQL
-     * @param  $col OPTIONAL:0
+     * @param integer $col OPTIONAL:0
      * @param array $bind OPTIONAL:array
      * @return array
      */

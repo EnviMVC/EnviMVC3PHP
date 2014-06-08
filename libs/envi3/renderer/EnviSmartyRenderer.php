@@ -49,6 +49,14 @@ class EnviSmartyRenderer
     }
 
 
+    /**
+     * +-- 設定を行う
+     *
+     * @access      public
+     * @param       var_text $module_dir
+     * @return      void
+     * @doc_ignore
+     */
     public function setting($module_dir)
     {
         $this->Smarty = new Smarty;
@@ -59,11 +67,12 @@ class EnviSmartyRenderer
         $this->Smarty->assign('Envi', Envi::singleton());
         $this->Smarty->assign('base_url', Envi::singleton()->getBaseUrl());
     }
+    /* ----------------------------------------- */
 
     /**
-     * templateに値を格納する
+     * +-- templateに値を格納する
      *
-     * @param string $key 格納する名前
+     * @param string $name 格納する名前
      * @param mixed $value 値
      * @return void
      */
@@ -71,24 +80,70 @@ class EnviSmartyRenderer
     {
         $this->Smarty->assign($name, $value);
     }
+    /* ----------------------------------------- */
 
+    /**
+     * +-- 画面に描画する
+     *
+     * 指定されたテンプレートを読み込み、標準出力に出力します。
+     *
+     * @access      public
+     * @param       string $file_name templateのパス
+     * @param       string $cache_id キャッシュID OPTIONAL:NULL
+     * @param       stiring $dummy2 ダミー変数 OPTIONAL:NULL
+     * @return      void
+     */
     public function display($file_name, $cache_id  = NULL, $dummy2 = NULL)
     {
         $this->Smarty->display($file_name, $cache_id, $this->_compile_id);
     }
+    /* ----------------------------------------- */
 
+    /**
+     * +-- キャッシュ済みかどうか確認する
+     *
+     * @access      public
+     * @param       string $file_name templateのパス
+     * @param       string $cache_id キャッシュID OPTIONAL:NULL
+     * @param       stiring $dummy2 ダミー変数 OPTIONAL:NULL
+     * @return      void
+     */
     public function is_cached($file_name, $cache_id  = NULL, $dummy2 = NULL)
     {
         return $this->Smarty->is_cached($file_name, $cache_id, $this->_compile_id);
     }
+    /* ----------------------------------------- */
 
+    /**
+     * +-- キャッシュを削除する
+     *
+     * @access      public
+     * @param       string $file_name templateのパス
+     * @param       string $cache_id キャッシュID OPTIONAL:NULL
+     * @param       stiring $dummy2 ダミー変数 OPTIONAL:NULL
+     * @return      void
+     */
     public function clear_cache($file_name, $cache_id  = NULL, $dummy2 = NULL)
     {
         return $this->Smarty->clear_cache($file_name, $cache_id, $this->_compile_id);
     }
+    /* ----------------------------------------- */
 
+
+    /**
+     * +-- 展開したテンプレートの出力結果を返す
+     *
+     * 指定されたテンプレートを読み込み、実行結果の文字列を返します。
+     *
+     * @access      public
+     * @param       string $file_name templateのパス
+     * @param       string $cache_id キャッシュID OPTIONAL:NULL
+     * @param       stiring $dummy2 ダミー変数 OPTIONAL:NULL
+     * @return      stiring
+     */
     public function displayRef($file_name, $cache_id  = NULL, $dummy2 = NULL)
     {
         return $this->Smarty->fetch($file_name, $cache_id, $this->_compile_id);
     }
+    /* ----------------------------------------- */
 }

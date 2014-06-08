@@ -269,6 +269,16 @@ function Envi($app = false, $debug = false)
 /**
  * EnviMVCのメイン処理
  *
+ * Enviクラスは、EnviMVCのメイン処理を司ります。
+ * Envi()関数を使用して、どこからでもアクセスできますが、基本的にフロントコントローラー以外では使用しません。
+ *
+ * ロガーや、バリデータ、エクステンションなどへのアクセスもサポートしますが、
+ * それぞれに、別なラッパーが用意されているため、通常ではそれを使用します。
+ *
+ * EnviMVCではルーティングルールの書き換えをサポートしていませんが、Enviクラス内ではprivateメソッドは使用していないため、
+ * 継承することで、dispatchや、_runを書き換えることで、ルーティングルールを変更することは出来ます。
+ * しかしながら、コレにはあまり意味がありません。
+ * 基本的なルールに関しては、yamlで設定可能となっていますので、特別な理由が無い限りは、その範囲内でのルール設定を推奨します。
  *
  *
  *
@@ -460,6 +470,8 @@ class Envi
     /**
      * +-- コンフィグデータをすべて返します
      *
+     * yamlで設定したコンフィグデータをすべて返します。
+     *
      * @access public
      * @return array 定義された全てのコンフィグデータ
      */
@@ -472,7 +484,7 @@ class Envi
 
 
     /**
-     * +-- コンフィグデータを返します
+     * +-- コンフィグデータを、キー指定で取得します
      *
      * 取得したいコンフィグデータを指定して、返します。
      *
@@ -513,8 +525,8 @@ class Envi
      * +-- 国際化データを返します
      *
      * @access public
-     * @param  $key
-     * @param  $string_key OPTIONAL:NULL
+     * @param string $key
+     * @param string $string_key OPTIONAL:NULL
      * @return array 国際化設定情報
      */
     public function getI18n($key, $string_key = NULL)
@@ -549,6 +561,7 @@ class Envi
      *
      * @static
      * @return EnviExtension エクステンションオブジェクト
+     * @see extension()
      */
     public static function extension()
     {
@@ -564,7 +577,8 @@ class Envi
      * 使用方法は、バリデーションの項目を参考にしてください。
      *
      * @static
-     * @return EnviLogWriter
+     * @return EnviValidator バリデーションオブジェクト
+     * @see validator()
      */
     public static function validator()
     {
@@ -579,7 +593,8 @@ class Envi
      * 使用方法は、ロギングの項目を参考にしてください。
      *
      * @static
-     * @return EnviLogWriter
+     * @return EnviLogWriter ログ記録オブジェクト
+     * @see logger()
      */
     public static function logger()
     {
@@ -595,6 +610,9 @@ class Envi
      *
      * @static
      * @return EnviLogWriter
+     * @deprecated 古い方法
+     * @see extension()
+     * @see Envi::extension()
      */
     public static function getExtension()
     {
@@ -611,6 +629,9 @@ class Envi
      *
      * @static
      * @return EnviLogWriter
+     * @deprecated 古い方法
+     * @see validator()
+     * @see Envi::validator()
      */
     public static function getValidator()
     {
@@ -627,6 +648,9 @@ class Envi
      *
      * @static
      * @return EnviLogWriter
+     * @deprecated 古い方法
+     * @see logger()
+     * @see Envi::logger()
      */
     public static function getLogger()
     {
@@ -641,7 +665,7 @@ class Envi
      * @access public
      * @param string $file YAMLファイルのファイル名
      * @param string $dir YAMLファイルがあるdirectory OPTIONAL:ENVI_MVC_APPKEY_PATH
-     * @return array
+     * @return array パース後の値
      */
     public function parseYml($file, $dir = ENVI_MVC_APPKEY_PATH)
     {
@@ -690,6 +714,8 @@ class Envi
     /**
      * +-- ベースのURLを返します。
      *
+     * フレームワーク基底のURLを返します。
+     *
      * @access public
      * @return string ベースURL
      */
@@ -703,7 +729,11 @@ class Envi
     /**
      * +-- Enviで実行されているすべての処理を中断して、終了します。
      *
+     * Enviで実行されているすべての処理を中断して、終了します。
+     *
      * EnviController::kill()と機能は一緒です。
+     * そちらに詳細を記述しているので、参照して下さい。
+     *
      * exit()は処理を完全に終了してしまうため、使用しないほうが無難です。このメソッドは、安全に終了します。
      * 例外を使用しているため、try句内では、正常に動作しない可能性があります。
      *
@@ -711,6 +741,7 @@ class Envi
      * @param string $kill OPTIONAL:''
      * @param boolean $is_shutDown OPTIONAL:true
      * @return void
+     * @see EnviController::Kill()
      */
     public function kill($kill = '', $is_shutDown = true)
     {
@@ -820,6 +851,7 @@ class Envi
      * @access public
      * @param boolean $is_first OPTIONAL:false
      * @return mixed
+     * @doc_ignore
      */
     final public function _run($is_first = false)
     {
@@ -1138,14 +1170,15 @@ class Envi
     /**
      * +-- レジストのみを行う(コマンドライン用)
      *
-     * dispatch()の代わりに使用します。Enviの機能をコマンドラインで使用したい場合などに使用します。
+     * Envi::dispatch()の代わりに使用します。Enviの機能をコマンドラインで使用したい場合などに使用します。
      * Enviの初期設定のみを行い、Actionなどの解決は行いません。
      *
      * @access      public
      * @static
-     * @param       var_text $app
-     * @param       var_text $debug OPTIONAL:false
+     * @param       strint $app アプリキー
+     * @param       boolean $debug デバッグモードで動作させるかどうか OPTIONAL:false
      * @return      void
+     * @see Envi::dispatch()
      */
     public static function registerOnly($app, $debug = false)
     {
@@ -1189,6 +1222,7 @@ class Envi
      * @access public
      * @param string $class_name
      * @return void
+     * @doc_ignore
      */
     public static function autoload($class_name)
     {
@@ -1205,6 +1239,7 @@ class Envi
      *
      * @access public
      * @return void
+     * @doc_ignore
      */
     public function __clone()
     {
@@ -1218,6 +1253,7 @@ class Envi
      * @access public
      * @param
      * @return void
+     * @doc_ignore
      */
     public function __wakeup()
     {
@@ -1232,6 +1268,7 @@ class Envi
      * @param       string $file_path
      * @param       mixed $data
      * @return      void
+     * @doc_ignore
      */
     public function configSerialize($file_path, $data)
     {
@@ -1245,6 +1282,7 @@ class Envi
      * @access      public
      * @param       string $file_path
      * @return      mixed
+     * @doc_ignore
      */
     public function configUnSerialize($file_path)
     {
@@ -1255,9 +1293,12 @@ class Envi
     /**
      * +-- 汎用serialize
      *
+     * 配列をシリアライズします。
+     *
      * @access public
      * @param mixed $data
      * @return string
+     * @see Envi::unserialize()
      */
     public function serialize($data)
     {
@@ -1272,9 +1313,12 @@ class Envi
     /**
      * +-- 汎用unserialize
      *
+     * Envi::serialize()された、配列をシリアライズします。
+     *
      * @access public
      * @param string $data
      * @return array
+     * @see Envi::serialize()
      */
     public function unserialize($data)
     {

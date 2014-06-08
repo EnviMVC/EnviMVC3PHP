@@ -42,9 +42,9 @@ class EnviPHPRenderer
     }
 
     /**
-     * templateに値を格納する
+     * +-- templateに値を格納する
      *
-     * @param string $key 格納する名前
+     * @param string $name 格納する名前
      * @param mixed $value 値
      * @return void
      */
@@ -52,12 +52,34 @@ class EnviPHPRenderer
     {
         $this->assign($name, $value);
     }
+    /* ----------------------------------------- */
 
+    /**
+     * +-- templateに値を格納する
+     *
+     * @param string $name 格納する名前
+     * @param mixed $value 値
+     * @return void
+     * @see EnviPHPRenderer::setAttribute()
+     * @deprecated EnviPHPRenderer::setAttribute()を使用して下さい。
+     */
     public function assign($name, $value)
     {
         $this->parameter[$name] = $value;
     }
+    /* ----------------------------------------- */
 
+    /**
+     * +-- 画面に描画する
+     *
+     * 指定されたテンプレートを読み込み、標準出力に出力します。
+     *
+     * @access      public
+     * @param       string $file_name templateのパス
+     * @param       string $cache_id キャッシュID OPTIONAL:NULL
+     * @param       stiring $dummy2 ダミー変数 OPTIONAL:NULL
+     * @return      void
+     */
     public function display($file_name, $cache_id  = NULL, $dummy2 = NULL)
     {
         //
@@ -66,6 +88,7 @@ class EnviPHPRenderer
         }
         include $this->_system_conf['DIRECTORY']['modules'].EnviRequest::getThisModule().DIRECTORY_SEPARATOR.$this->_system_conf['DIRECTORY']['templates'].$file_name;
     }
+    /* ----------------------------------------- */
 
     public function is_cached($file_name, $cache_id  = NULL, $dummy2 = NULL)
     {
@@ -77,6 +100,18 @@ class EnviPHPRenderer
         //
     }
 
+
+    /**
+     * +-- 展開したテンプレートの出力結果を返す
+     *
+     * 指定されたテンプレートを読み込み、実行結果の文字列を返します。
+     *
+     * @access      public
+     * @param       string $file_name templateのパス
+     * @param       string $cache_id キャッシュID OPTIONAL:NULL
+     * @param       stiring $dummy2 ダミー変数 OPTIONAL:NULL
+     * @return      stiring
+     */
     public function displayRef($file_name, $cache_id  = NULL, $dummy2 = NULL)
     {
         ob_start();
@@ -88,5 +123,6 @@ class EnviPHPRenderer
         ob_end_clean();
         return $this->display_ref;
     }
+    /* ----------------------------------------- */
 
 }

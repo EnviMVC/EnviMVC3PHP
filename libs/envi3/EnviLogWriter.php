@@ -2,10 +2,17 @@
 /**
  * ログ記録クラス
  *
- * PHPの汎用ログ記録クラスです。
+ * 汎用ログ記録クラスです。
  * アクセスログ、レベル分けの実行(エラー)ログ、内部ログ、パフォーマンス、実行時間、登録変数
  * が記録可能です。
  * 振る舞いは、設定ファイルに依存します。
+ *
+ * * logger();
+ *    * ログファイルにロギングする
+ * * console();
+ *    * コンソールにロギングする
+ *
+ * の二種類のロギングをサポートしています。
  *
  * PHP versions 5
  *
@@ -51,10 +58,22 @@ function console()
 /**
  * ログ記録クラス
  *
- * PHPの汎用ログ記録クラスです。
- * アクセスログ、レベル分けの実行(エラー)ログ、内部ログ、パフォーマンス、実行時間、登録変数
+ * アプリケーションログの記録を行います。
+ * * アクセスログ
+ * * レベル分けの実行(エラー)ログ
+ * * 内部ログ
+ * * パフォーマンス
+ * * 実行時間
+ * * 登録変数
  * が記録可能です。
  * 振る舞いは、設定ファイルに依存します。
+ *
+ * フレームワーク内で直接newせずとも自動的に精製されます。
+ * 使用する場合は、
+ * logger()->debug('someting message');
+ * とするか、
+ * Envi::logger()->debug('someting message');
+ * としてください。
  *
  * @category   MVC
  * @package    Envi3
@@ -112,7 +131,8 @@ class EnviLogWriter
 
 
     /**#@+
-    * @access private
+     * @access private
+     * @doc_ignore
     */
     private $_container  = array();
     private $_system_conf = array();
@@ -142,8 +162,8 @@ class EnviLogWriter
      * +-- コンストラクタ
      *
      * @access private
-     * @param
      * @return void
+     * @doc_ignore
      */
     private function __construct()
     {
@@ -204,6 +224,7 @@ class EnviLogWriter
         }
     }
     /* ----------------------------------------- */
+
     /**
      * +-- コンソールロガーの呼び出し
      *
@@ -215,12 +236,13 @@ class EnviLogWriter
         return $this->console;
     }
     /* ----------------------------------------- */
+
     /**
-     * +-- デバッグメッセージ
+     * +-- デバッグメッセージを記録します
      *
-     * @access public
-     * @param string $message メッセージ OPTIONAL:'debugMeaage'
-     * @return void
+     * @access      public
+     * @param       string $message メッセージ OPTIONAL:'debugMeaage'
+     * @return      void
      */
     public function debug($message = 'debug Meaage')
     {
@@ -242,13 +264,13 @@ class EnviLogWriter
     /* ----------------------------------------- */
 
     /**
-     * +-- インフォメーションメッセージ
+     * +-- インフォメーションメッセージを記録します
      *
-     * @access public
-     * @param string $message メッセージ OPTIONAL:'Information Meaage'
-     * @return void
+     * @access      public
+     * @param       string $message メッセージ OPTIONAL:'Information Message'
+     * @return      void
      */
-    public function info($message = 'Information Meaage')
+    public function info($message = 'Information Message')
     {
         if ($this->_system_conf['system']['value_error_logging_level'][1] === 0) {
             return;
@@ -267,13 +289,13 @@ class EnviLogWriter
     /* ----------------------------------------- */
 
     /**
-     * +-- 忠告レベルのエラーメッセージ
+     * +-- 忠告レベルのエラーメッセージを記録します
      *
-     * @access public
-     * @param string $message メッセージ OPTIONAL:'notice Meaage'
-     * @return void
+     * @access      public
+     * @param       string $message メッセージ OPTIONAL:'notice Message'
+     * @return      void
      */
-    public function notice($message = 'notice Meaage')
+    public function notice($message = 'notice Message')
     {
         if ($this->_system_conf['system']['value_error_logging_level'][2] === 0) {
             return;
@@ -292,13 +314,13 @@ class EnviLogWriter
     /* ----------------------------------------- */
 
     /**
-     * +-- 警告レベルのエラーメッセージ
+     * +-- 警告レベルのエラーメッセージを記録します
      *
-     * @access public
-     * @param string $message メッセージ OPTIONAL:'warningMeaage'
-     * @return void
+     * @access      public
+     * @param       string $message メッセージ OPTIONAL:'warning Message'
+     * @return      void
      */
-    public function warning($message = 'warning Meaage')
+    public function warning($message = 'warning Message')
     {
         if ($this->_system_conf['system']['value_error_logging_level'][3] === 0) {
             return;
@@ -317,13 +339,13 @@ class EnviLogWriter
     /* ----------------------------------------- */
 
     /**
-     * +-- 深刻なエラーメッセージ
+     * +-- 深刻なエラーメッセージを記録します
      *
-     * @access public
-     * @param string $message メッセージ OPTIONAL:'fatalMeaage'
-     * @return void
+     * @access      public
+     * @param       string $message メッセージ OPTIONAL:'fatal Message'
+     * @return      void
      */
-    public function fatal($message = 'fatal Meaage')
+    public function fatal($message = 'fatal Message')
     {
         if ($this->_system_conf['system']['value_error_logging_level'][4] === 0) {
             return;
@@ -342,10 +364,10 @@ class EnviLogWriter
     /* ----------------------------------------- */
 
     /**
-     * +-- パフォーマンスを取得する
+     * +-- パフォーマンスを取得します
      *
-     * @access public
-     * @return float
+     * @access      public
+     * @return      float 時点までの実行時間
      */
     public function getExecutionTime()
     {
@@ -358,10 +380,11 @@ class EnviLogWriter
     /* ----------------------------------------- */
 
     /**
-     * +-- エラーオブジェクトから、ログを記録する
+     * +-- エラーオブジェクトから、ログを記録します
      *
-     * @param object $error_obj
-     * @return void
+     * @access      public
+     * @param       object $error_obj エラーオブジェクト
+     * @return      void
      */
     public function setErrorByRef($error_obj)
     {
@@ -414,12 +437,13 @@ class EnviLogWriter
         }
     }
     /* ----------------------------------------- */
+
 // +---------------------------------------------
     /**
-     * スクリプトの最後で呼ぶ
+     * +-- スクリプトの最後で呼ぶ
      *
-     * @param string $message (optional) メッセージ
-     * @return void
+     * @access      public
+     * @return      void
      */
     public function shutdown()
     {
@@ -509,14 +533,16 @@ class EnviLogWriter
             $this->_logging($message, 'performance_alert');
         }
     }
+    /* ----------------------------------------- */
 
     /**#@+
      * @access provate
     */
 
     /**
-     * PHPのグローバル変数ログを記録します。
+     * +-- PHPのグローバル変数ログを記録します。
      *
+     * @access      private
      * @param string $mode
      * @param array $res (OPTIONAL)
      * @return void
@@ -640,10 +666,12 @@ class EnviLogWriter
 
         $this->_logging($message, $mode);
     }
+    /* ----------------------------------------- */
 
     /**
-     * エラーメッセージを記録する
+     * +-- エラーメッセージを記録する
      *
+     * @access      private
      * @param array &$res
      * @return void
      */
@@ -699,12 +727,13 @@ class EnviLogWriter
         }
         // コンソール
         $this->console->_systemLog($message, $this->_log_level[$res['level']]);
-
     }
+    /* ----------------------------------------- */
 
     /**
-     * ログを記録する
+     * +-- ログを記録する
      *
+     * @access      private
      * @param stging|array &$message
      * @param string $mode
      * @return void
@@ -777,10 +806,12 @@ class EnviLogWriter
         }
         $logging_count[$mode]++;
     }
+    /* ----------------------------------------- */
 
     /**
-     * ログローテート
+     * +-- ログローテート
      *
+     * @access      private
      * @param string $fpath ログファイルパス
      * @param integer $masize ログファイルの最大サイズ
      * @return void
@@ -794,10 +825,12 @@ class EnviLogWriter
             rename($fpath, $fpath.$i);
         }
     }
+    /* ----------------------------------------- */
 
     /**
-     * 配列を再帰的に、パースさせる
+     * +-- 配列を再帰的に、パースさせる
      *
+     * @access      private
      * @param array &$array
      * @param array $md5_list
      * @param array|boolean $limit
@@ -835,6 +868,7 @@ class EnviLogWriter
         }
         return $res;
     }
+    /* ----------------------------------------- */
 
     private function _getArrayList(&$array, $md5_list = array(), $limit = false)
     {
@@ -867,8 +901,9 @@ class EnviLogWriter
 
 
     /**
-     * 設定ファイルを読み込みます。
+     * +-- 設定ファイルを読み込みます。
      *
+     * @access      private
      * @param string $logging_type 設定のタイプ
      * @param string $ini_path 設定ファイルのパス
      * @return void
@@ -961,6 +996,7 @@ class EnviLogWriter
         @ fwrite($handle, $writestring);
         @ fclose($handle);
     }
+    /* ----------------------------------------- */
 
 
     /**
@@ -1001,10 +1037,17 @@ class EnviLogWriter
 // -------------------------------------------------------------
 }
 /**
- * @package
- * @subpackage
- * @sinse 0.1
- * @author     akito<akito-artisan@five-foxes.com>
+ * @category   MVC
+ * @package    Envi3
+ * @subpackage Logger
+ * @doc_ignore
+ * @author     Akito <akito-artisan@five-foxes.com>
+ * @copyright  2011-2013 Artisan Project
+ * @license    http://opensource.org/licenses/BSD-2-Clause The BSD 2-Clause License
+ * @version    Release: @package_version@
+ * @link       https://github.com/EnviMVC/EnviMVC3PHP
+ * @see        http://www.enviphp.net/
+ * @since      Class available since Release 3.3.2.1
  */
 class EnviLogWriterConsoleEmpty extends EnviLogWriterConsole
 {
@@ -1083,10 +1126,17 @@ class EnviLogWriterConsoleEmpty extends EnviLogWriterConsole
 }
 
 /**
- * @package
- * @subpackage
- * @sinse 0.1
- * @author     akito<akito-artisan@five-foxes.com>
+ * @category   MVC
+ * @package    Envi3
+ * @subpackage Logger
+ * @doc_ignore
+ * @author     Akito <akito-artisan@five-foxes.com>
+ * @copyright  2011-2013 Artisan Project
+ * @license    http://opensource.org/licenses/BSD-2-Clause The BSD 2-Clause License
+ * @version    Release: @package_version@
+ * @link       https://github.com/EnviMVC/EnviMVC3PHP
+ * @see        http://www.enviphp.net/
+ * @since      Class available since Release 3.3.2.1
  */
 class EnviLogWriterConsole
 {
@@ -1111,6 +1161,15 @@ class EnviLogWriterConsole
  * ブラウザのコンソールログや、envi コマンドでのログ収集が可能な形式での、ロギングです。
  * 振る舞いは、設定ファイルに依存します。
  *
+ *
+ *
+ * 直接newせずに使用します。
+ * 使用する場合は、
+ * console()->debug('someting message');
+ * とするか、
+ * logger()->console()->debug('someting message');
+ * としてください。
+ *
  * @category   MVC
  * @package    Envi3
  * @subpackage Logger
@@ -1120,16 +1179,17 @@ class EnviLogWriterConsole
  * @version    Release: @package_version@
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
  * @see        http://www.enviphp.net/
- * @since      Class available since Release 1.0.0
+ * @since      Class available since Release 3.3.2.1
  */
 class EnviLogWriterConsoleLog extends EnviLogWriterConsole
 {
     private static $instance     = NULL;
+
     /**
-     * +-- デバッグトレースも記録するかどうかを設定して、元の値を返す
+     * +-- デバッグトレースも記録するかどうかを設定して、元の値を返します
      *
      * @access      public
-     * @param       boolean $setter
+     * @param       boolean $setter デバッグトレースを使用するならtrue そうで無いなら、false
      * @return      boolean
      */
     public function setUseDebugBackTrace($setter)
@@ -1141,10 +1201,10 @@ class EnviLogWriterConsoleLog extends EnviLogWriterConsole
     /* ----------------------------------------- */
 
     /**
-     * +-- Consoleにのみログを排出します
+     * +-- Consoleにのみ、infoレベルのログを排出します
      *
      * @access      public
-     * @param       var_text $log_text
+     * @param       string $log_text 記録するログメッセージ
      * @return      void
      */
     public function info($log_text)
@@ -1163,10 +1223,10 @@ class EnviLogWriterConsoleLog extends EnviLogWriterConsole
 
 
     /**
-     * +-- Consoleにのみログを排出します
+     * +-- Consoleにのみ、ログを排出します
      *
      * @access      public
-     * @param       var_text $log_text
+     * @param       string $log_text 記録するログメッセージ
      * @return      void
      */
     public function log($log_text)
@@ -1182,10 +1242,10 @@ class EnviLogWriterConsoleLog extends EnviLogWriterConsole
     /* ----------------------------------------- */
 
     /**
-     * +-- Consoleにのみログを排出します
+     * +-- Consoleにのみ、errorレベルのログを排出します
      *
      * @access      public
-     * @param       var_text $log_text
+     * @param       string $log_text 記録するログメッセージ
      * @return      void
      */
     public function error($log_text)
@@ -1202,10 +1262,10 @@ class EnviLogWriterConsoleLog extends EnviLogWriterConsole
     /* ----------------------------------------- */
 
     /**
-     * +-- Consoleにのみログを排出します
+     * +-- Consoleにのみ、warnレベルのログを排出します
      *
      * @access      public
-     * @param       var_text $log_text
+     * @param       string $log_text 記録するログメッセージ
      * @return      void
      */
     public function warn($log_text)

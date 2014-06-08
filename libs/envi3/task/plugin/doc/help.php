@@ -19,16 +19,13 @@
  */
 
 
-
 // ヘルプ表示
 cecho('Name:', 33);
 cecho('    envi ', 34, '\n         Enviに対する操作を行います');
 cecho('Usage:', 33);
     echo '    envi task_name [arguments] [Options]'."\n";
 cecho('Task name:', 33);
-cecho('    unittest-go [test.yml path]              ', 32, '\n    テストを実行する');
-cecho('    unittest-init テストグループ名           ', 32, '\n    テストグループをカレントディレクトリに追加する');
-cecho('    unittest-add テストクラス名              ', 32, '\n    テストをカレントディレクトリに追加する');
-cecho('    unittest-help                            ', 32, '\n    このマニュアルを実行する');
+cecho('    doc-gen [schema.yml path]                        ', 32, '\n        ドキュメントを生成します');
+cecho('    doc-help [schema.yml path]                       ', 32, '\n        このヘルプを表示します');
 exit;
 die;

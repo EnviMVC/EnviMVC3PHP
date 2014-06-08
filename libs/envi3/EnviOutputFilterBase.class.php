@@ -67,7 +67,7 @@ abstract class EnviOutputFilterBase
      * +-- フィルタの実行
      *
      * @access public
-     * @param staring &$contents
+     * @param staring $contents
      * @return void
      */
     public function execute(&$contents)

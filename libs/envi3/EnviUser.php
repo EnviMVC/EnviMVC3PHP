@@ -2,7 +2,12 @@
 /**
  * ユーザークラス
  *
- * Sessionの機構を利用した、ユーザー固有のデータ管理を行います。
+ * EnviUserはユーザー固有のデータを、[SESSION](http://www.php.net/manual/ja/intro.session.php)の機構を利用して、保存する機能です。
+ *
+ * [EnviUser::setAttribute](/c/man/v3/reference/EnviUser/class/setAttribute)で格納されたデータは、リクエスト間でデータを参照することが出来ます。
+ *
+ * staticで定義されているため、Envi PHP上のどこからでもアクセスすることが出来ますが、ActionControllerおよび、ViewController以外からの参照はしない方が、エレガントなコードになります。
+ *
  *
  * PHP versions 5
  *

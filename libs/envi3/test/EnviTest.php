@@ -1,6 +1,9 @@
-<?php
+<?php
 /**
- * テスト用の処理
+ * 自動テスト用の処理
+ *
+ *
+ * 詳細は、[自動テスト](http://www.enviphp.net/c/man/v3/core/unittest)を参照して下さい。
  *
  * PHP versions 5
  *
@@ -17,13 +20,41 @@
  * @since      File available since Release 1.0.0
  */
 
+/**
+ * @package
+ * @subpackage
+ * @abstract
+ * @since      File available since Release 1.0.0
+ * @author     akito<akito-artisan@five-foxes.com>
+ * @doc_ignore
+ */
+abstract class EnviTestBase
+{
+    protected $code_coverage = false;
+    protected function codeCoverageRestart()
+    {
+        if ($this->use_code_coverage === false) {
+            return;
+        }
+        $this->code_coverage->finish();
+        $this->code_coverage->start();
+    }
 
+    protected function setCodeCoverage($code_coverage)
+    {
+        $this->code_coverage = $code_coverage;
+    }
+}
 
 
 /**
  * テストAssert
  *
- * EnviTestCaseで継承されます。
+ * EnviTestCaseで継承されるため直接参照することはありませんが、
+ * EnviTestCaseはすべての、テストで継承されるため、
+ * すべてのテストの中でこのクラスに定義されているテストアサーションを使用することが出来ます。
+ *
+ *
  *
  * @package    Envi3
  * @category   MVC
@@ -36,7 +67,7 @@
  * @see        http://www.enviphp.net/
  * @since      Class available since Release 1.0.0
  */
-class EnviTestAssert
+abstract class EnviTestAssert extends EnviTestBase
 {
     /**
      * +-- 配列にキーがあるかどうかを確認し、ない場合はエラー$message を報告します。
@@ -51,6 +82,7 @@ class EnviTestAssert
      */
     public function assertArrayHasKey($key, $array, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!(!is_array($key) && is_array($array))) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -74,6 +106,7 @@ class EnviTestAssert
      */
     public function assertArrayNotHasKey($key, $array, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!(!is_array($key) && is_array($array))) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -97,6 +130,7 @@ class EnviTestAssert
      */
     public function assertArrayHasValue($value, $array, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_array($array)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -121,6 +155,7 @@ class EnviTestAssert
      */
     public function assertArrayNotHasValue($value, $array, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_array($array)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -143,6 +178,7 @@ class EnviTestAssert
      */
     public function assertArray($a, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!(is_array($a))) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -164,6 +200,7 @@ class EnviTestAssert
      */
     public function assertClassHasAttribute($attribute_name, $class_name, $message = '')
     {
+        $this->codeCoverageRestart();
         $array = get_class_methods($class_name);
         if (!is_array($array)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
@@ -187,6 +224,7 @@ class EnviTestAssert
      */
     public function assertClassNotHasAttribute($attribute_name, $class_name, $message = '')
     {
+        $this->codeCoverageRestart();
         $array = get_class_methods($class_name);
         if (!is_array($array)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
@@ -211,6 +249,7 @@ class EnviTestAssert
      */
     public function assertContains($value, $array, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_array($array)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -235,6 +274,7 @@ class EnviTestAssert
      */
     public function assertNotContains($value, $array, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_array($array)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -256,6 +296,7 @@ class EnviTestAssert
      */
     public function assertContainsOnly($type, $array, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!(is_array($array) && !is_array($value))) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -281,6 +322,7 @@ class EnviTestAssert
      */
     public function assertNotContainsOnly($type, $array, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!(is_array($array) && !is_array($value))) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -306,6 +348,7 @@ class EnviTestAssert
      */
     public function assertCount($count, $array, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_array($array)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -329,6 +372,7 @@ class EnviTestAssert
      */
     public function assertNotCount($count, $array, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_array($array)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -360,6 +404,7 @@ class EnviTestAssert
      */
     public function assertEmpty($a, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!empty($a)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -388,6 +433,7 @@ class EnviTestAssert
      */
     public function assertNotEmpty($a, $message = '')
     {
+        $this->codeCoverageRestart();
         if (empty($a)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -410,6 +456,7 @@ class EnviTestAssert
      */
     public function assertEquals($a, $b, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!($a == $b)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -430,6 +477,7 @@ class EnviTestAssert
      */
     public function assertNotEquals($a, $b, $message = '')
     {
+        $this->codeCoverageRestart();
         if (($a == $b)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -449,6 +497,7 @@ class EnviTestAssert
      */
     public function assertFalse($a, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!($a === false)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -469,6 +518,7 @@ class EnviTestAssert
      */
     public function assertFileEquals($a, $b, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!(file_get_contents($a) === file_get_contents($b))) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -489,6 +539,7 @@ class EnviTestAssert
      */
     public function assertFileNotEquals($a, $b, $message = '')
     {
+        $this->codeCoverageRestart();
         if ((file_get_contents($a) === file_get_contents($b))) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -508,6 +559,7 @@ class EnviTestAssert
      */
     public function assertFileExists($a, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!(file_exists($a))) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -527,6 +579,7 @@ class EnviTestAssert
      */
     public function assertNotFileExists($a, $message = '')
     {
+        $this->codeCoverageRestart();
         if ((file_exists($a))) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -547,6 +600,7 @@ class EnviTestAssert
      */
     public function assertGreaterThan($a, $b, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!($a > $b)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -567,6 +621,7 @@ class EnviTestAssert
      */
     public function assertGreaterThanOrEqual($a, $b, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!($a >= $b)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -587,6 +642,7 @@ class EnviTestAssert
      */
     public function assertInstanceOf($expected, $actual, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_object($actual) || !is_string($expected)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -611,6 +667,7 @@ class EnviTestAssert
      */
     public function assertNotInstanceOf($expected, $actual, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_object($actual) || !is_string($expected)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -634,6 +691,7 @@ class EnviTestAssert
      */
     public function assertInternalType($expected, $actual, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($expected)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -656,6 +714,7 @@ class EnviTestAssert
      */
     public function assertNotInternalType($expected, $actual, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($expected)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -679,6 +738,7 @@ class EnviTestAssert
      */
     public function assertLessThan($a, $b, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!($a < $b)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -699,6 +759,7 @@ class EnviTestAssert
      */
     public function assertLessThanOrEqual($a, $b, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!($a <= $b)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -718,6 +779,7 @@ class EnviTestAssert
      */
     public function assertNull($a, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!($a === NULL)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -738,6 +800,7 @@ class EnviTestAssert
      */
     public function assertObjectHasAttribute($attribute_name, $object, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($attribute_name)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -761,6 +824,7 @@ class EnviTestAssert
      */
     public function assertObjectNotHasAttribute($attribute_name, $object, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($attribute_name)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -784,6 +848,7 @@ class EnviTestAssert
      */
     public function assertRegExp($pattern, $string, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($pattern) || !is_string($string)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -805,12 +870,13 @@ class EnviTestAssert
      * @param string $message OPTIONAL:'' 表示するエラーメッセージ
      * @return boolean OKの場合trueを返します。 テストがNGの場合は、何も返しません。
      */
-    public function assertNotRegExp($format, $string, $message = '')
+    public function assertNotRegExp($pattern, $string, $message = '')
     {
-        if (!is_string($format) || !is_string($string)) {
+        $this->codeCoverageRestart();
+        if (!is_string($pattern) || !is_string($string)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
-        if ((mb_ereg($format, $string))) {
+        if ((mb_ereg($pattern, $string))) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
         return true;
@@ -832,6 +898,7 @@ class EnviTestAssert
      */
     public function assertPregMatch($pattern, $string, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($pattern) || !is_string($string)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -853,12 +920,13 @@ class EnviTestAssert
      * @param string $message OPTIONAL:'' 表示するエラーメッセージ
      * @return boolean OKの場合trueを返します。 テストがNGの場合は、何も返しません。
      */
-    public function assertNotPregMatch($format, $string, $message = '')
+    public function assertNotPregMatch($pattern, $string, $message = '')
     {
-        if (!is_string($format) || !is_string($string)) {
+        $this->codeCoverageRestart();
+        if (!is_string($pattern) || !is_string($string)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
-        if ((preg_match($format, $string) === true)) {
+        if ((preg_match($pattern, $string) === true)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
         return true;
@@ -880,6 +948,7 @@ class EnviTestAssert
      */
     public function assertStringMatchesFormat($pattern, $string, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($pattern) || !is_string($string)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -903,6 +972,7 @@ class EnviTestAssert
      */
     public function assertStringNotMatchesFormat($pattern, $string, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($pattern) || !is_string($string)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -926,6 +996,7 @@ class EnviTestAssert
      */
     public function assertStringMatchesFormatFile($format_file, $string, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($format_file) || !is_string($string) || is_file($format_file)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -950,6 +1021,7 @@ class EnviTestAssert
      */
     public function assertStringNotMatchesFormatFile($format_file, $string, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($format_file) || !is_string($string) || is_file($format_file)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -973,6 +1045,7 @@ class EnviTestAssert
      */
     public function assertSame($a, $b, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!($a === $b)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -993,6 +1066,7 @@ class EnviTestAssert
      */
     public function assertNotSame($a, $b, $message = '')
     {
+        $this->codeCoverageRestart();
         if (($a === $b)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -1013,6 +1087,7 @@ class EnviTestAssert
      */
     public function assertStringEndsWith($suffix, $string, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($suffix) || !is_string($string)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -1035,6 +1110,7 @@ class EnviTestAssert
      */
     public function assertStringNotEndsWith($suffix, $string, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($suffix) || !is_string($string)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -1057,6 +1133,7 @@ class EnviTestAssert
      */
     public function assertStringEqualsFile($expected_file, $string, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($expected_file) || !is_string($string)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -1081,6 +1158,7 @@ class EnviTestAssert
      */
     public function assertStringNotEqualsFile($expected_file, $string, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($expected_file) || !is_string($string)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -1103,6 +1181,7 @@ class EnviTestAssert
      */
     public function assertStringStartsWith($prefix, $string, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($prefix) || !is_string($string)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -1126,6 +1205,7 @@ class EnviTestAssert
      */
     public function assertStringNotStartsWith($prefix, $string, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!is_string($prefix) || !is_string($string)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -1138,6 +1218,7 @@ class EnviTestAssert
 
     public function assertTag()
     {
+        $this->codeCoverageRestart();
 
     }
 
@@ -1152,6 +1233,7 @@ class EnviTestAssert
      */
     public function assertThat($value, EnviTestContain $contain, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!($contain->execute($value))) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -1171,6 +1253,7 @@ class EnviTestAssert
      */
     public function assertTrue($a, $message = '')
     {
+        $this->codeCoverageRestart();
         if (!($a === true)) {
             throw new EnviTestException(__METHOD__.' '.$this->toString(func_get_args()));
         }
@@ -1203,12 +1286,14 @@ class EnviTestAssert
     }
     /* ----------------------------------------- */
 
-
 }
 
 
 /**
- * テストケースクラスで継承されるクラス
+ * テストクラスで継承されるクラス
+ *
+ * EnviTestCaseはすべてのテストクラスで継承されるクラスです。
+ * envi コマンドで生成されるテスト以外に手動でテストクラスを作成する場合も、必ずこのクラスを継承して下さい。
  *
  * @package Envi3
  * @subpackage EnviTest
@@ -1229,6 +1314,199 @@ abstract class EnviTestCase extends EnviTestAssert
     public function __construct()
     {
     }
+
+    /**
+     * +-- emulateExecuteで発行するGETパラメータを追加します
+     *
+     * @access      public
+     * @param       string $key    パラメータのキー
+     * @param       string $value  パラメータの値
+     * @return      void
+     * @see EnviTestCase::emulateExecute()
+     * @since       3.3.3.5
+     */
+    public function setGetParameter($key, $value)
+    {
+        $this->get[$key] = $value;
+    }
+    /* ----------------------------------------- */
+
+    /**
+     * +-- emulateExecuteで発行するPOSTパラメータを追加します
+     *
+     * @access      public
+     * @param       string $key    パラメータのキー
+     * @param       string $value  パラメータの値
+     * @return      void
+     * @see EnviTestCase::emulateExecute()
+     * @since       3.3.3.5
+     */
+    public function setPostParameter($key, $value)
+    {
+        $this->post[$key] = $value;
+    }
+    /* ----------------------------------------- */
+
+    /**
+     * +-- emulateExecuteで発行するクッキーパラメータを追加します
+     *
+     * @access      public
+     * @param       string $key    パラメータのキー
+     * @param       string $value  パラメータの値
+     * @return      void
+     * @see EnviTestCase::emulateExecute()
+     * @since       3.3.3.5
+     */
+    public function setCookieParameter($key, $value)
+    {
+        $this->cookie[$key] = $value;
+    }
+    /* ----------------------------------------- */
+
+
+    /**
+     * +-- emulateExecuteで発行するヘッダを追加します
+     *
+     * @access      public
+     * @param       string $key    パラメータのキー
+     * @param       string $value  パラメータの値
+     * @return      void
+     * @see EnviTestCase::emulateExecute()
+     * @since       3.3.3.5
+     */
+    public function setHeader($key, $value)
+    {
+        $this->headers[$key] = $value;
+    }
+    /* ----------------------------------------- */
+
+
+
+    /**
+     * +-- emulateExecuteで発行するGETパラメータを削除します
+     *
+     * @access      public
+     * @param       string $key    パラメータのキー
+     * @return      void
+     * @see EnviTestCase::emulateExecute()
+     * @since       3.3.3.5
+     */
+    public function removeGetParameter($key)
+    {
+        if (isset($this->get[$key])) {
+            unset($this->get[$key]);
+        }
+    }
+    /* ----------------------------------------- */
+
+    /**
+     * +-- emulateExecuteで発行するPOSTパラメータを削除します
+     *
+     * @access      public
+     * @param       string $key    パラメータのキー
+     * @return      void
+     * @see EnviTestCase::emulateExecute()
+     * @since       3.3.3.5
+     */
+    public function removePostParameter($key)
+    {
+        if (isset($this->post[$key])) {
+            unset($this->post[$key]);
+        }
+    }
+    /* ----------------------------------------- */
+
+    /**
+     * +-- emulateExecuteで発行するクッキーパラメータを削除します
+     *
+     * @access      public
+     * @param       string $key    パラメータのキー
+     * @return      void
+     * @see EnviTestCase::emulateExecute()
+     * @since       3.3.3.5
+     */
+    public function removeCookieParameter($key)
+    {
+        if (isset($this->cookie[$key])) {
+            unset($this->cookie[$key]);
+        }
+    }
+    /* ----------------------------------------- */
+
+
+    /**
+     * +-- emulateExecuteで発行するヘッダを削除します
+     *
+     * @access      public
+     * @param       string $key    パラメータのキー
+     * @return      void
+     * @see EnviTestCase::emulateExecute()
+     * @since       3.3.3.5
+     */
+    public function removeHeader($key)
+    {
+        if (isset($this->headers[$key])) {
+            unset($this->headers[$key]);
+        }
+    }
+    /* ----------------------------------------- */
+
+    /**
+     * +-- emulateExecuteで発行するGETパラメータをすべて削除します
+     *
+     * @access      public
+     * @return      void
+     * @see EnviTestCase::emulateExecute()
+     * @since       3.3.3.5
+     */
+    public function resetGetParameter()
+    {
+        $this->get = array();
+    }
+    /* ----------------------------------------- */
+
+    /**
+     * +-- emulateExecuteで発行するPOSTパラメータをすべて削除します
+     *
+     * @access      public
+     * @return      void
+     * @see EnviTestCase::emulateExecute()
+     * @since       3.3.3.5
+     */
+    public function resetPostParameter()
+    {
+        $this->post = array();
+    }
+    /* ----------------------------------------- */
+
+    /**
+     * +-- emulateExecuteで発行するクッキーパラメータをすべて削除します
+     *
+     * @access      public
+     * @return      void
+     * @see EnviTestCase::emulateExecute()
+     * @since       3.3.3.5
+     */
+    public function resetCookieParameter()
+    {
+        $this->cookie = array();
+    }
+    /* ----------------------------------------- */
+
+
+    /**
+     * +-- emulateExecuteで発行するヘッダをすべて削除します
+     *
+     * @access      public
+     * @return      void
+     * @see EnviTestCase::emulateExecute()
+     * @since       3.3.3.5
+     */
+    public function resetHeader()
+    {
+        $this->headers = array();
+    }
+    /* ----------------------------------------- */
 
     private function getContext($request_method, $post, $headers_arr, $cookie)
     {
@@ -1279,12 +1557,16 @@ abstract class EnviTestCase extends EnviTestAssert
     abstract public function shutdown();
 
     /**
-     * +-- テストの実行
+     * +-- テストリクエストを発行して、結果を受け取る
      *
-     * @access private
-     * @return string
+     * 特定のアクションに対してアクセスするテストリクエストを発行し、その結果を返します。
+     * 結果は、配列で返され、0番目がサーバーから返されたhttpヘッダ、1番目が、実際の出力となります。
+     *
+     * @param       string $_request_method リクエストメソッド。省略した場合は自動で選択。 OPTIONAL:NULL
+     * @access public
+     * @return array
      */
-    final protected function emulateExecute($_request_method = false)
+    final public function emulateExecute($_request_method = NULL)
     {
         $get         = is_array($this->system_conf['parameter']['get']) ? $this->system_conf['parameter']['get'] : array();
         $post        = is_array($this->system_conf['parameter']['post']) ? $this->system_conf['parameter']['post'] : array();
@@ -1297,7 +1579,7 @@ abstract class EnviTestCase extends EnviTestAssert
         $post   = array_merge($post, $this->post);
         $headers = array_merge($headers, $this->headers);
         $cookie = array_merge($cookie, $this->cookie);
-        $request_method    = $_request_method ? $_request_method : $request_method;
+        $request_method    = is_string($_request_method) ? $_request_method : $request_method;
         $context = $this->getContext($request_method, $post, $headers, $cookie);
         $query_string = count($get) ? '?'.http_build_query($get) : '';
         // echo $this->request_url.$query_string."\n";
@@ -1306,6 +1588,7 @@ abstract class EnviTestCase extends EnviTestAssert
         $contents = file_get_contents($this->request_url.$query_string, false, $context);
         return array($http_response_header, $contents);
     }
+    /* ----------------------------------------- */
 
 
     final public function setModuleAction($module, $action)
@@ -1402,6 +1685,7 @@ class EnviTestScenario
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
  * @see        http://www.enviphp.net/
  * @since      Class available since Release 1.0.0
+ * @doc_ignore
  */
 abstract class EnviTestBlankMockBase
 {
@@ -1418,6 +1702,27 @@ abstract class EnviTestBlankMockBase
 /* ----------------------------------------- */
 
 /**
+ * 簡易的なモックテストを提供します。
+ *
+ * EnviMockは、簡易的にモックテストを提供します。
+ *
+ *
+ * EnviMockは、それ自身でオブジェクトを生成しません。
+ *
+ * たとえば、下記のようなコードはエラーとなります。
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.php_code .code}
+ * <?php
+ * $mok = new EnviMock;
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * EnviMock::mock('クラス名');
+ *
+ * による、EnviTestMockEditorの生成のみをサポートします。
+ *
+ * テストモックに対する実際の処理は、EnviTestMockEditorによって行われます。
+ *
+ * 内部では、runkitを使用しているため、必要に応じてエクステンションをインストールする必要性があります。
+ *
  * @package    Envi3
  * @category   MVC
  * @subpackage UnitTest
@@ -1427,7 +1732,7 @@ abstract class EnviTestBlankMockBase
  * @version    Release: @package_version@
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
  * @see        http://www.enviphp.net/
- * @since      Class available since Release 1.0.0
+ * @since      Class available since Release 3.3.3.2
  */
 class EnviMock
 {
@@ -1439,6 +1744,7 @@ class EnviMock
      *
      * @access      private
      * @return      void
+     * @doc_ignore
      */
     private function __construct()
     {
@@ -1448,6 +1754,12 @@ class EnviMock
 
     /**
      * +-- モックの取得
+     *
+     * EnviTestMockEditorによる、モックテストを開始します。
+     *
+     * 定義済みのクラスを指定した場合は、スタブ可能なモックテストに、
+     *
+     * 未定義のクラスを指定した場合は、完全なモックを提供します。
      *
      * @access      public
      * @static
@@ -1501,6 +1813,15 @@ class EnviMock
 /* ----------------------------------------- */
 
 /**
+ * モッククラスに対する操作を提供します。
+ *
+ * EnviTestMockEditorはモッククラスに対する操作を提供します。
+ *
+ * 内部では、runkitを使用しているため、必要に応じてエクステンションをインストールする必要性があります。
+ *
+ * EnviTestMockEditorはすべてメソッドチェーンで実行されます。
+ *
+ *
  * @package    Envi3
  * @category   MVC
  * @subpackage UnitTest
@@ -1510,7 +1831,7 @@ class EnviMock
  * @version    Release: @package_version@
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
  * @see        http://www.enviphp.net/
- * @since      Class available since Release 1.0.0
+ * @since      Class available since Release 3.3.3.2
  */
 class EnviTestMockEditor
 {
@@ -1518,23 +1839,40 @@ class EnviTestMockEditor
     private $method_name;
     private $with;
     private $times;
+    private $copy_method_list = array();
+    private $default_extends;
+    private $default_methods;
+
 
     /**
      * +-- コンストラクタ
      *
+     *
      * @access      public
      * @param       any $cla_name
      * @return      void
+     * @deprecated EnviMock::mock('クラス名');を使用して下さい。
+     * @see EnviMock::mock();
      */
     public function __construct($class_name)
     {
         $this->class_name = $class_name;
+        $this->default_methods = array_flip(get_class_methods($class_name));
+        $default_extends = class_parents($class_name, false);
+        if (count($default_extends)) {
+            $this->default_extends = array_shift($default_extends);
+        }
     }
     /* ----------------------------------------- */
 
 
     /**
-     * +-- メソッド一覧
+     * +-- 定義されているメソッドの一覧を返します。
+     *
+     * モッククラスに定義されているメソッドの名前を配列として返します。
+     * エラー時には NULL を返します。
+     *
+     * 宣言されているままのメソッド名 (大文字小文字を区別) を返すことに注意して下さい。
      *
      * @access      public
      * @return      array
@@ -1548,6 +1886,7 @@ class EnviTestMockEditor
     /**
      * +-- 継承を解除する
      *
+     * 他のクラスを継承している場合継承関係を解消し、 親クラスから継承しているメソッドを取り除く
      * @access      public
      * @return      EnviTestMockEditor
      */
@@ -1559,16 +1898,46 @@ class EnviTestMockEditor
     }
     /* ----------------------------------------- */
 
+
+    /**
+     * +-- 指定したクラスを継承させる
+     *
+     * 継承されている場合、継承を解除し、指定したクラスを継承させる。
+     *
+     * @access      public
+     * @param       string $class_name 継承させるクラス名
+     * @return      EnviTestMockEditor
+     * @since       3.3.3.5
+     */
+    public function adopt($class_name)
+    {
+        runkit_class_emancipate($this->class_name);
+        runkit_class_adopt($this->class_name , $class_name);
+        return $this;
+    }
+    /* ----------------------------------------- */
+
     /**
      * +-- メソッドを削除する
      *
+     * クラスから、指定されたメソッドを削除します、
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.alert .alert-warning}
+     * __注意:__
+     * 現在実行中(もしくはチェーンド)のメソッドを操作することはできません。
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
      * @access      public
-     * @param       any $method
+     * @param       string $method 削除するメソッド
      * @return      EnviTestMockEditor
      */
     public function removeMethod($method)
     {
         if (method_exists($this->class_name, $method)) {
+            if (!isset($this->copy_method_list[$method]) && isset($this->default_methods[$method])) {
+                $this->copy_method_list[$method] = $this->class_name.'_'.$method.sha1(microtime());
+                runkit_method_copy ('EnviTestMockTemporary', $this->copy_method_list[$method], $this->class_name, $method);
+            }
             runkit_method_remove($this->class_name, $method);
         }
         return $this;
@@ -1576,10 +1945,81 @@ class EnviTestMockEditor
     /* ----------------------------------------- */
 
     /**
-     * +-- 空のメソッドを定義する。既にメソッドが定義されている場合は、空のメソッドに置き換える
+     * +-- removeMethodしたMethodを元に戻す
+     *
+     * 削除、および変更されたメソッドを元に戻す。
      *
      * @access      public
-     * @param       any $method
+     * @param       string $method 戻すメソッド
+     * @return      EnviTestMockEditor
+     * @since       3.3.3.5
+     */
+    public function restoreMethod($method)
+    {
+        if (!isset($this->copy_method_list[$method])) {
+            return $this;
+        }
+        if (method_exists($this->class_name, $method)) {
+            runkit_method_remove($this->class_name, $method);
+        }
+        runkit_method_copy ($this->class_name, $method, 'EnviTestMockTemporary', $this->copy_method_list[$method]);
+        return $this;
+    }
+    /* ----------------------------------------- */
+
+    /**
+     * +-- 書き換えたクラス定義をすべて元に戻す
+     *
+     * モックエディタで変更した、クラス定義をすべて元に戻します。
+     *
+     * @access      public
+     * @return      EnviTestMockEditor
+     * @since       3.3.3.5
+     */
+    public function restoreAll()
+    {
+        // 継承を戻す
+        $this->restoreExtends();
+
+        // メソッドを戻す
+        foreach ($this->copy_method_list as $method_name => $tmp) {
+            $this->restoreMethod($method_name);
+        }
+
+        // 追加メソッドの削除
+        foreach ($this->getMethods() as $method_name) {
+            if (!isset($this->default_methods[$method_name])) {
+                $this->removeMethod($method_name);
+            }
+        }
+        return $this;
+    }
+    /* ----------------------------------------- */
+
+    /**
+     * +-- emancipateおよび、adoptした継承状態を元に戻す。
+     *
+     * モックエディタで変更した継承状態を元に戻します。
+     *
+     * @access      public
+     * @return      EnviTestMockEditor
+     * @since       3.3.3.5
+     */
+    public function restoreExtends()
+    {
+        $this->adopt($this->default_extends);
+        return $this;
+    }
+    /* ----------------------------------------- */
+
+    /**
+     * +-- 空のメソッドを定義する
+     *
+     * 空のメソッドを定義します。
+     * 既にメソッドが定義されている場合は、空のメソッドに置き換えます。
+     *
+     * @access      public
+     * @param       string $method 定義したいメソッド名
      * @return      EnviTestMockEditor
      */
     public function blankMethod($method)
@@ -1592,10 +2032,13 @@ class EnviTestMockEditor
 
 
     /**
-     * +-- 複数の空メソッドを定義する。既に定義済の場合は、空のメソッドに置き換える
+     * +-- 複数の空メソッドを定義する
+     *
+     * 複数の空メソッドを定義します。
+     * 既にメソッドが定義されている場合は、空のメソッドに置き換えます。
      *
      * @access      public
-     * @param       array $methods
+     * @param       array $methods 定義するメソッド名の配列
      * @return      EnviTestMockEditor
      */
     public function blankMethodByArray(array $methods)
@@ -1609,6 +2052,8 @@ class EnviTestMockEditor
 
     /**
      * +-- 全ての定義済メソッドを空メソッドに置き換える
+     *
+     * 定義されているメソッドを空メソッドに置き換えます
      *
      * @access      public
      * @return      EnviTestMockEditor
@@ -1625,6 +2070,20 @@ class EnviTestMockEditor
     /**
      * +-- 制約を追加するためのメソッドを定義します。
      *
+     * メソッドに制約を追加できます。
+     * 制約を追加したいメソッド名をshouldReceive()で指定し、メソッドチェーンで、制約を追加します。
+     *
+     * 追加した制約から外れた場合、該当のメソッドは、例外、EnviTestMockExceptionがthrowされます。
+     *
+     * 返り値を設定するまで、制約は追加されません。
+     * 逆に、返り値を設定してしまうと、制約が追加され、メソッドは書き換えられてしまいます。
+     *
+     * {@example}
+     *    $mock
+     *    ->shouldReceive('check') // checkというメソッドが呼び出される
+     *    ->with('foo') // 引数として'foo'を受け取る
+     *    ->andReturn(true); // trueを返却する
+     * {/@example}
      * @access      public
      * @param       string $method_name
      * @return      EnviTestMockEditor
@@ -1640,8 +2099,14 @@ class EnviTestMockEditor
     /**
      * +-- このメソッドにのみ期待される引数のリストの制約を追加します。
      *
+     * EnviTestMockEditor::shouldReceive()から、メソッドチェーンで呼び出されます。
+     *
+     * 指定のメソッドに渡される引数のリストを追加します。
+     * 指定された引数以外が渡された場合は、例外、EnviTestMockExceptionがthrowされます。
+     *
      * @access      public
      * @return      EnviTestMockEditor
+     * @see         EnviTestMockEditor::shouldReceive()
      */
     public function with()
     {
@@ -1653,8 +2118,15 @@ class EnviTestMockEditor
     /**
      * +-- メソッドが二回以上呼び出されないことを定義します
      *
+     * EnviTestMockEditor::shouldReceive()から、メソッドチェーンで呼び出されます。
+     *
+     * メソッドが二回以上呼び出されないことを定義します。
+     * 制約から外れた場合は、例外、EnviTestMockExceptionがthrowされます。
+     *
+     *
      * @access      public
      * @return      EnviTestMockEditor
+     * @see         EnviTestMockEditor::shouldReceive()
      */
     public function once()
     {
@@ -1667,8 +2139,14 @@ class EnviTestMockEditor
     /**
      * +-- メソッドが三回以上呼び出されないことを定義します
      *
+     * EnviTestMockEditor::shouldReceive()から、メソッドチェーンで呼び出されます。
+     *
+     * メソッドが三回以上呼び出されないことを定義します。
+     * 制約から外れた場合は、例外、EnviTestMockExceptionがthrowされます。
+     *
      * @access      public
      * @return      EnviTestMockEditor
+     * @see         EnviTestMockEditor::shouldReceive()
      */
     public function twice()
     {
@@ -1681,8 +2159,14 @@ class EnviTestMockEditor
     /**
      * +-- メソッドが呼び出されないことを定義します
      *
+     * EnviTestMockEditor::shouldReceive()から、メソッドチェーンで呼び出されます。
+     *
+     * メソッドが呼び出されないことを定義します。
+     * 制約から外れた場合は、例外、EnviTestMockExceptionがthrowされます。
+     *
      * @access      public
      * @return      EnviTestMockEditor
+     * @see         EnviTestMockEditor::shouldReceive()
      */
     public function never()
     {
@@ -1694,9 +2178,15 @@ class EnviTestMockEditor
     /**
      * +-- メソッドが$n回以上呼び出されないことを定義します。
      *
+     * EnviTestMockEditor::shouldReceive()から、メソッドチェーンで呼び出されます。
+     *
+     * メソッドが$n回以上呼び出されないことを定義します。
+     * 制約から外れた場合は、例外、EnviTestMockExceptionがthrowされます。
+     *
      * @access      public
-     * @param       any $n
+     * @param       integer $n 制限回数
      * @return      EnviTestMockEditor
+     * @see         EnviTestMockEditor::shouldReceive()
      */
     public function times($n)
     {
@@ -1709,8 +2199,15 @@ class EnviTestMockEditor
     /**
      * +-- 期待メソッドが0回以上呼び出すことができますことを宣言します。そうでない場合に設定しない限り、これは、すべてのメソッドのデフォルトです。
      *
+     *
+     * EnviTestMockEditor::shouldReceive()から、メソッドチェーンで呼び出されます。
+     *
+     * 期待メソッドが0回以上呼び出すことができますことを宣言します。
+     * そうでない場合に設定しない限り、これは、すべてのメソッドのデフォルトです。
+     *
      * @access      public
      * @return      EnviTestMockEditor
+     * @see         EnviTestMockEditor::shouldReceive()
      */
     public function zeroOrMoreTimes()
     {
@@ -1724,11 +2221,18 @@ class EnviTestMockEditor
     /**
      * +-- 戻り値を設定します。
      *
-     * この後のモックメソッドの全ての呼び出しは常にこの宣言に指定された値を返すことに注意してください。
+     * 戻り値を設定します。
+     *
+     * この後のモックメソッドの全ての呼び出しは、常にこの宣言に指定された値を返すことに注意してください。
+     *
+     * EnviTestMockEditor::shouldReceive()から、メソッドチェーンで呼び出され、制限が確定されます。
+     *
+     *
      *
      * @access      public
      * @param       any $res
      * @return      EnviTestMockEditor
+     * @see         EnviTestMockEditor::shouldReceive()
      */
     public function andReturn($res)
     {
@@ -1744,8 +2248,15 @@ class EnviTestMockEditor
     /**
      * +-- NULLを返すメソッドであると定義します
      *
+     * NULLを返すメソッドであると定義します
+     *
+     * この後のモックメソッドの全ての呼び出しは、常にこの宣言に指定されたNULLを返すことに注意してください。
+     *
+     * EnviTestMockEditor::shouldReceive()から、メソッドチェーンで呼び出され、制限が確定されます。
+     *
      * @access      public
      * @return      EnviTestMockEditor
+     * @see         EnviTestMockEditor::shouldReceive()
      */
     public function andReturnNull()
     {
@@ -1764,10 +2275,15 @@ class EnviTestMockEditor
     /**
      * +-- 呼び出された場合、このメソッドは、指定された例外オブジェクトをスローすることを宣言します。
      *
+     * この後のモックメソッドの全ての呼び出し、常にこの宣言に例外を返すようになることに注意して下さい。
+     *
+     * EnviTestMockEditor::shouldReceive()から、メソッドチェーンで呼び出され、制限が確定されます。
+     *
      * @access      public
      * @param       any $exception_class_name
      * @param       any $message OPTIONAL:''
      * @return      EnviTestMockEditor
+     * @see         EnviTestMockEditor::shouldReceive()
      */
     public function andThrow($exception_class_name, $message = '')
     {
@@ -1830,6 +2346,11 @@ class EnviTestMockEditor
 }
 /* ----------------------------------------- */
 
+class EnviTestMockTemporary
+{
+}
+
+
 /**
  * @package    Envi3
  * @category   MVC
@@ -1841,6 +2362,7 @@ class EnviTestMockEditor
  * @link       https://github.com/EnviMVC/EnviMVC3PHP
  * @see        http://www.enviphp.net/
  * @since      Class available since Release 1.0.0
+ * @doc_ignore
  */
 class EnviTestMockException extends exception
 {

@@ -24,8 +24,15 @@
 /**
  * ActionControllerから、Framework自体の振る舞いを変更する
  *
- * ActionControllerから、全て静的にコールされます。
- * ActionChainの仕組みを利用するなど、FW自体に振る舞いの変更を通知します。
+ * EnviControllerは、ActionController内でアプリケーション自体の振る舞いを制御します。
+ *
+ * * 処理の中断
+ * * 処理の委譲
+ * * アクションチェインの実行・制御
+ *
+ * が、提供する主な機能となります。
+ *
+ * [アクションチェイン](/c/man/v3/core/action_chain)に関しては、基本リファレンスで解説をしています。
  *
  * @category   MVC
  * @package    Envi3
@@ -51,6 +58,7 @@ class EnviController
      *
      * @access      private
      * @return      void
+     * @doc_ignore
      */
     private function __construct()
     {
@@ -60,12 +68,24 @@ class EnviController
     /**
      * +-- アクションチェインの中かどうかを返す
      *
-     * 実行中のアクションコントローラーが、アクションチェインで実行されているかどうかを返します。
+     * 実行中のアクションコントローラーが、アクションチェインで実行されているかどうかをしらべ、
+     * アクションチェインで実行されている場合は、true。そうでない場合は、falseを返します
+     *
+     * {@example}
+     * <?php
+     * // アクションチェイン中のAction
+     * $res = EnviController::isActionChain();
+     * var_dump($res);
+     * ?>
+     * {/@example}
+     * {@example_result}
+     * bool(true)
+     * {/@example_result}
      *
      * @final
      * @access public
      * @static
-     * @return boolean アクションチェインで実行されている場合は、true。そうでない場合は、false;
+     * @return boolean アクションチェイン内かどうか
      */
     final public static function isActionChain()
     {
@@ -74,12 +94,27 @@ class EnviController
     /* ----------------------------------------- */
 
     /**
-     * +-- 他のアクションに処理を明け渡す
+     * +-- 他のアクションに処理を明け渡します
+     *
+     * 指定された他のアクションに処理を明け渡します。
+     * 元のアクションは処理を中断せず、他のアクションを実行後は、元のアクションに処理が戻るので注意して下さい。
+     *
+     * {@example}
+     * <?php
+     * $res = EnviController::forward('reference', 'v3');
+     * var_dump($res);
+     * ?>
+     * {/@example}
+     * {@example_result}
+     * bool(true)
+     * {/@example_result}
      *
      * @final
      * @param string $action アクション名
      * @param string $module モジュール名 OPTIONAL:NULL
-     * @return boolean
+     * @return boolean 必ずtrueを返す
+     * @see EnviRequest::getThisModule()
+     * @see EnviRequest::getThisAction()
      */
     final public static function forward($action, $module = NULL)
     {
@@ -89,11 +124,11 @@ class EnviController
             EnviRequest::$_module_name = $module;
         }
 
-        //Action
+        // Action
         EnviRequest::$_action_name = $action;
-        //実行
+        // 実行
         Envi::singleton()->_run();
-        //戻す
+        // 戻す
         EnviRequest::$_module_name = $cpm;
         EnviRequest::$_action_name = $cpa;
         return true;
@@ -102,10 +137,50 @@ class EnviController
 
 
     /**
-     * +-- 他のURLにリダイレクトする
+     * +-- 他のURLにリダイレクトします
      *
-     * 第二引数の、$dieは、trueで中断、falseで続行します。
-     * defaultはtrueとなります。
+     *
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.alert .alert-warning}
+     * __注意__: $die をtrue にした場合、[EnviController::kill](/c/man/v3/reference/EnviController/class/kill)とは違い、shutdownは実行されないことに注意して下さい。
+     *
+     * デストラクタは実行されます。
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     *
+     * このメソッドは、例外を使用します。
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.php_code .code}
+     * <?php
+     * try {
+     *     EnviController::redirect(EnviController::generateUrl('action', 'module'));
+     * } catch (exception $e) {
+     *
+     * }
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     * と言ったように、すべての例外を受ける、try句の中では、使用できません。
+     * try句の中では下記のように記述することで、使用できます。
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.php_code .code}
+     * <?php
+     * try {
+     *     EnviController::redirect(EnviController::generateUrl('action', 'module'));
+     * } catch (redirectException $e) {
+     *     throw $e;
+     * } catch (exception $e) {
+     *     // 何か処理
+     * }
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.alert .alert-info}
+     * __※__ redirectExceptionの最終的な挙動は、フロントコントローラーで操作できます。
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     * {@example}
+     * <?php
+     * EnviController::redirect('reference', 'v3');
+     * ?>
+     * {/@example}
      *
      * @final
      * @access public
@@ -129,6 +204,19 @@ class EnviController
 
     /**
      * +-- action名module名を指定してUrlを作成する。
+     *
+     * action名module名を指定してUrlを作成します。
+     * モジュール名が省略された場合は、実行中のモジュールが指定されます。
+     *
+     * {@example}
+     * <?php
+     * $res = EnviController::generateUrl('reference', 'v3');
+     * echo $res;
+     * ?>
+     * {/@example}
+     * {@example_result}
+     * /app.php/module_name/action_name.php
+     * {/@example_result}
      *
      * @final
      * @access public
@@ -156,15 +244,57 @@ class EnviController
     /**
      * +-- 処理を中断します。
      *
-     * Envi内では、exitやdieなどの関数で処理を中断することは推奨されません。
-     * Envi::kill()と機能は一緒です。
+     *
+     * EnviPHPで実行されている現在のプロセスをすべて中断します。
+     *
+     * EnviPHPでは、exitやdieによるスクリプトの停止を認めていません。
+     *
+     * PHPの仕様上それは単なる規約に過ぎませんが、代わりに、このメソッドを使用することにより、より柔軟なスクリプト中断が可能です。
+     *
+     * このメソッドは、例外を使用します。
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.php_code .code}
+     * <?php
+     * try {
+     *     EnviController::kill('reference', 3);
+     * } catch (exception $e) {
+     *
+     * }
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     * と言ったように、すべての例外を受ける、try句の中では、使用できません。
+     * try句の中では下記のように記述することで、使用できます。
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.php_code .code}
+     * <?php
+     * try {
+     *     EnviController::kill('reference', 3);
+     * } catch (killException $e) {
+     *     throw $e;
+     *
+     * } catch (exception $e) {
+     *     // 何か処理
+     * }
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.alert .alert-info}
+     * __※__ killExceptionの最終的な挙動は、フロントコントローラーで操作できます。
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     * {@example}
+     * <?php
+     * EnviController::kill('reference', 3);
+     * ?>
+     * {/@example}
+     *
      *
      * @final
      * @access public
      * @static
-     * @param  $kill OPTIONAL:''
-     * @param  $is_shutDown OPTIONAL:true
+     * @param string $kill OPTIONAL:''
+     * @param boolean $is_shutDown OPTIONAL:true
      * @return void
+     * @see Envi::Kill()
      */
     final public static function kill($kill = '', $is_shutDown = true)
     {
@@ -175,6 +305,15 @@ class EnviController
     /**
      * +-- アクションを連続して実行する準備をする
      *
+     * アクションを連続して実行する準備をします。
+     * アクションチェイン名が、配列で受け取るときのキーとなる。
+     *
+     * {@example}
+     * <?php
+     * EnviController::setActionChain('top_header', 'header', 'common');
+     * ?>
+     * {/@example}
+     *
      * @final
      * @access public
      * @static
@@ -183,6 +322,10 @@ class EnviController
      * @param string $module モジュール名 OPTIONAL:NULL
      * @param string $data チェイン先に渡すデータ OPTIONAL:NULL
      * @return void
+     * @see EnviController::go()
+     * @see EnviController::getActionChainName()
+     * @see EnviController::isActionChain ()
+     * @see EnviController::unsetActionChain()
      */
     final public static function setActionChain($name, $action, $module = NULL, $data = NULL)
     {
@@ -196,11 +339,23 @@ class EnviController
      *
      * EnviController::setActionChain()したアクションを実行リストから削除します。
      *
+     *
+     * {@example}
+     * <?php
+     * EnviController::setActionChain('top_header', 'header', 'common');
+     * EnviController::unsetActionChain('top_header');
+     * ?>
+     * {/@example}
+     *
      * @final
      * @access public
      * @static
      * @param string $name チェイン名
      * @return void
+     * @see EnviController::go()
+     * @see EnviController::getActionChainName()
+     * @see EnviController::isActionChain ()
+     * @see EnviController::setActionChain()
      */
     final public static function unsetActionChain($name)
     {
@@ -214,13 +369,26 @@ class EnviController
      *
      * EnviController::setActionChain()したアクションを連続して実行して、その出力の配列を受け取ります。
      *
-     * このメソッドは、出力バッファリングを使用しています。
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.alert .alert-info}
+     * __※__ このメソッドは、出力バッファリングを使用しています。
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     * {@example}
+     * <?php
+     * EnviController::setActionChain('top_header', 'header', 'common');
+     * $res = EnviController::go();
+     * echo $res['top_header'];
+     * ?>
+     * {/@example}
      *
      * @final
      * @access public
      * @static
-     * @see setActionChain()
      * @return array
+     * @see EnviController::getActionChainName()
+     * @see EnviController::isActionChain ()
+     * @see EnviController::setActionChain()
+     * @see EnviController::unsetActionChain()
      */
     final public static function go()
     {
@@ -255,10 +423,26 @@ class EnviController
     /**
      * +-- アクションチェイン中、その実行プロセス名を返す
      *
+     * 現在実行中のアクションコントローラーが、
+     * アクションチェインで実行されている場合、そのアクションチェイン名を返します。
+     * そうで無い場合は、単にNULLを返します。
+     *
+     * {@example}
+     * <?php
+     * $res = EnviController::getActionChainName();
+     * var_dump($res);
+     * ?>
+     *
+     * {/@example}
+     *
      * @final
      * @access public
      * @static
      * @return string 実行中のアクションチェイン名
+     * @see EnviController::go()
+     * @see EnviController::isActionChain ()
+     * @see EnviController::setActionChain()
+     * @see EnviController::unsetActionChain()
      */
     final public static function getActionChainName()
     {
@@ -269,11 +453,61 @@ class EnviController
     /**
      * +-- 404エラーを発行する
      *
+     *  404ヘッダを出力し、EnviPHPで実行されている現在のプロセスをすべて中断します。
+     *
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.alert .alert-warning}
+     * __注意__:[EnviController::kill](/c/man/v3/reference/EnviController/class/kill)とは違い、shutdownは実行されないことに注意して下さい。
+     *
+     * デストラクタは実行されます。
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     *
+     * EnviPHPでは、exitやdieによるスクリプトの停止を認めていません。
+     *
+     * PHPの仕様上それは単なる規約に過ぎませんが、代わりに、このメソッドを使用することにより、より柔軟なスクリプト中断が可能です。
+     *
+     * このメソッドは、例外を使用します。
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.php_code .code}
+     * <?php
+     * try {
+     *     EnviController::killBy404Error();
+     * } catch (exception $e) {
+     *
+     * }
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     * と言ったように、すべての例外を受ける、try句の中では、使用できません。
+     * try句の中では下記のように記述することで、使用できます。
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.php_code .code}
+     * <?php
+     * try {
+     *     EnviController::killBy404Error();
+     * } catch (Envi404Exception $e) {
+     *     throw $e;
+     * } catch (exception $e) {
+     *     // 何か処理
+     * }
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.alert .alert-info}
+     * __※__ Envi404Exception の最終的な挙動は、フロントコントローラーで操作できます。
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     * {@example}
+     * <?php
+     * EnviController::killBy404Error('not found.');
+     * ?>
+     * {/@example}
+     *
      * @final
      * @access      public
      * @static
      * @param string $error_message エラーメッセージ OPTIONAL:''
      * @return      void
+     * @see EnviController::kill()
+     * @see EnviController::killBy403Error()
      */
     final public static function killBy404Error($error_message = '')
     {
@@ -284,11 +518,62 @@ class EnviController
     /**
      * +-- 403エラーを発行する
      *
+     * 403ヘッダを出力し、EnviPHPで実行されている現在のプロセスをすべて中断します。
+     *
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.alert .alert-warning}
+     * __注意__:[EnviController::kill](/c/man/v3/reference/EnviController/class/kill)とは違い、shutdownは実行されないことに注意して下さい。
+     *
+     * デストラクタは実行されます。
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     *
+     * EnviPHPでは、exitやdieによるスクリプトの停止を認めていません。
+     *
+     * PHPの仕様上それは単なる規約に過ぎませんが、代わりに、このメソッドを使用することにより、より柔軟なスクリプト中断が可能です。
+     *
+     * このメソッドは、例外を使用します。
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.php_code .code}
+     * <?php
+     * try {
+     *     EnviController::killBy403Error();
+     * } catch (exception $e) {
+     *
+     * }
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     * と言ったように、すべての例外を受ける、try句の中では、使用できません。
+     * try句の中では下記のように記述することで、使用できます。
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.php_code .code}
+     * <?php
+     * try {
+     *     EnviController::killBy403Error();
+     * } catch (Envi403Exception $e) {
+     *     throw $e;
+     * } catch (exception $e) {
+     *     // 何か処理
+     * }
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.alert .alert-info}
+     * __※__ Envi403Exception の最終的な挙動は、フロントコントローラーで操作できます。
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     *
+     * {@example}
+     * <?php
+     * EnviController::killBy403Error('access denied');
+     * ?>
+     * {/@example}
+     *
      * @final
      * @access      public
      * @static
      * @param string $error_message エラーメッセージ OPTIONAL:''
      * @return      void
+     * @see EnviController::kill()
+     * @see EnviController::killBy404Error()
      */
     final public static function killBy403Error($error_message = '')
     {

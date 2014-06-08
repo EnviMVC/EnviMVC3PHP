@@ -2,9 +2,29 @@
 /**
  * 雑多な入力検証を提供する入力検証クラス。
  *
- * よく使う入力検証の機能を集めました。
- * エラーがあれば、エラーオブジェクトを返します。
- * エラークラスをバンドルしていますが、オリジナルの物を使用することもできます。
+ * EnviValidatorは、ユーザーの入力データを検証するための、高性能なインターフェイスを提供します。
+ *
+ * EnviValidatorは、シングルトンとして動作します。
+ * つまり、EnviValidatorは`$EnviValidator = new EnviValidator;`のように、インスタンスを作成することが出来ません。
+ *
+ * インスタンスを受け取るには、下記のようにする必要があります。
+ *
+ * どちらの例も、EnviValidatorオブジェクトを返します。
+ *
+ * * 例1
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * $EnviValidator =  EnviValidator::singleton();
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * * 例2
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * $EnviValidator =  validator();
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * 例2で表した方法が、よりシンプルなコードになるでしょう。
+ *
+ * 本マニュアルでは、例2の方法を使用して、記載していきます。
+ *
  *
  * PHP versions 5
  *
@@ -22,8 +42,9 @@
 */
 
 /**
- * 雑多な入力検証を提供する入力検証クラス。
- * *
+ * このクラスは、定数を提供するのみです。
+ *
+ *
  * @category   MVC
  * @package    Envi3
  * @subpackage Validator
@@ -37,10 +58,37 @@
  */
 class validator
 {
+    /**
+     * timeバリデータで使用。時間のみのチェック
+     *
+     * @var         integer
+     */
     const HOUR_ONLY        = 2;
+    /**
+     * timeバリデータで使用。時間と分のみのチェック
+     *
+     * @var         integer
+     */
     const HOUR_TO_MINUTE   = 4;
+    /**
+     * timeバリデータで使用。時分秒のチェック
+     *
+     * @var         integer
+     */
     const HOUR_TO_SECOND   = 6;
+
+    /**
+     * EnviValidate::autoPrepareで使用。POSTデータ
+     *
+     * @var         integer
+     */
     const METHOD_POST      = 1;
+
+    /**
+     * EnviValidate::autoPrepareで使用。GETデータ
+     *
+     * @var         integer
+     */
     const METHOD_GET       = 2;
 
     /**
@@ -71,9 +119,34 @@ function validator()
 /**
  * 雑多な入力検証を提供する入力検証クラス。
  *
- * よく使う入力検証の機能を集めました。
- * エラーがあれば、エラーオブジェクトを返します。
+ *
+ * EnviValidatorは、ユーザーの入力データを検証するための、高性能なインターフェイスを提供します。
+ * よく使う入力検証の機能が集まっています。
+ *
+ * エラーがあれば、エラーオブジェクトを返しそうで無いなら、値を返すのが基本動作です。
  * エラークラスをバンドルしていますが、オリジナルの物を使用することもできます。
+ *
+ * EnviValidatorは、シングルトンとして動作します。
+ * つまり、EnviValidatorは`$EnviValidator = new EnviValidator;`のように、インスタンスを作成することが出来ません。
+ *
+ * インスタンスを受け取るには、下記のようにする必要があります。
+ *
+ * どちらの例も、EnviValidatorオブジェクトを返します。
+ *
+ * * 例1
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * $EnviValidator =  EnviValidator::singleton();
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * * 例2
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * $EnviValidator =  validator();
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * 例2で表した方法が、よりシンプルなコードになるでしょう。
+ *
+ * 本マニュアルでは、例2の方法を使用して、記載していきます。
+ *
  * バリデータのリスト
  * Upper Version 3.3.1
  * - 'equal'            => 値が同じであるかどうか
@@ -172,9 +245,9 @@ class EnviValidator
     /**
      * バリデーションチェインのフォーマット
      *
-     * バリデーションチェインの既定値グループを登録します。<br>
-     * 何度も同じチェインを使用する場合などに便利です。<br>
-     * 直接配列で指定可能ですが、メソッドを呼び出して簡単に登録することもできます。<br>
+     * バリデーションチェインの既定値グループを登録します。
+     * 何度も同じチェインを使用する場合などに便利です。
+     * 直接配列で指定可能ですが、メソッドを呼び出して簡単に登録することもできます。
      *
      * @var array Format:
      * <pre>
@@ -334,15 +407,17 @@ class EnviValidator
 
 
     /**
-     * 実行するバリデータチェイン名を指定して実行
+     * +-- 実行するバリデータチェイン名を指定して実行
      *
-     * 入力検証を実行しエラークラス、もしくは、保証されたデータを受け取ります。<br>
-     * isError()メソッドでエラーのチェックを行えます。<br>
+     * 入力検証を実行しエラークラス、もしくは、保証されたデータを受け取ります。
+     * isError()メソッドでエラーのチェックを行えます。
      *
-     * @param string,array $validation_name バリデートするフォームデータ名
+     * @param string|array $validation_name バリデートするフォームデータ名
      * @param bool $object_clean エラーオブジェクトを毎回空にするか
-     * @see isError()
      * @return array,object
+     * @see EnviValidator::isError()
+     * @see EnviValidator::prepare()
+     * @see EnviValidator::autoPrepare()
      */
     public function execute($validation_name, $object_clean = TRUE)
     {
@@ -394,15 +469,18 @@ class EnviValidator
         }
         return $res;
     }
+    /* ----------------------------------------- */
 
     /**
-     * すべて実行
+     * +--入力検証を全て実行しエラークラス、もしくは、保証されたデータを受け取ります。
      *
-     * 入力検証を全て実行しエラークラス、もしくは、保証されたデータを受け取ります。<br>
-     * isError()メソッドでエラーのチェックを行えます。<br>
+     * 入力検証を全て実行しエラークラス、もしくは、保証されたデータを受け取ります。
+     * isError()メソッドでエラーのチェックを行えます。
      *
-     * @see isError()
-     * @return array,object
+     * @see EnviValidator::isError()
+     * @see EnviValidator::prepare()
+     * @see EnviValidator::autoPrepare()
+     * @return array|object 入力検証を実行しエラークラス、もしくは、保証されたデータが格納された配列を受け取ります。 validator()->isError()メソッドでエラーのチェックを行えます。
      */
     public function executeAll()
     {
@@ -424,30 +502,37 @@ class EnviValidator
             return $res;
         }
     }
+    /* ----------------------------------------- */
 
     /**
-     * バリデート機能定義(自動)
+     * +-- バリデート機能定義(自動)
      *
-     * 検証する入力データを自動で取得・定義して、新規にバリデータにかけます。<br>
-     * デフォルト取得されるデータは、$_POST・$_GETの両方からサーチします。<br>
-     * $post_only に<br>
-     * VM_METHOD_GET(GETのみ)<br>
-     * VM_METHOD_POST(POSTのみ)<br>
-     * VM_METHOD_POST|VM_METHOD_GET(両方/デフォルトはこれ)<br>
-     * を指定することで、受け取るデータに制限をかける事が出来ます。<br>
-     * ※上位互換のため、bool型もサポートしていますが、これは推奨されません。<br>
+     * 検証する入力データを自動で取得・定義して、新規にバリデータにかけます。
+     * デフォルト取得されるデータは、$_POST・$_GETの両方からサーチします。
+     * $post_only に
+     * VM_METHOD_GET(GETのみ)
+     * VM_METHOD_POST(POSTのみ)
+     * VM_METHOD_POST|VM_METHOD_GET(両方/デフォルトはこれ)
+     * を指定することで、受け取るデータに制限をかける事が出来ます。
+     * ※上位互換のため、bool型もサポートしていますが、これは推奨されません。
      *
      *
-     * @param string,array $validation_name <pre>バリデートするフォームデータ名。
-     * array("バリデートするフォームデータ名" => フォーム名)
-     * 配列を指定することで、フォーム名をつけることができます。
-     * フォーム名は、エラー発生時にエラークラスに渡されます。</pre>
+     * $validation_name に配列を指定することで、表示用のフォーム名をつけることができます。
+     * 表示用のフォーム名は、エラー発生時にエラークラスに渡されます。
+     *
+     * 例)
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     * array("データ名" => "表示用のフォーム名")
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     * @param string|array $validation_name バリデートするフォームデータ名。
      * @param string|array $validator バリデータ名,$this->getChainFormat()の結果
      * @param bool $validator_chain エラーがあった場合に確認処理を継続するか
      * @param bool $trim 入力検証データをtrimするかどうか
      * @param integer|boolean VM_METHOD_POST = POSTのみ VM_METHOD_GET = GETのみ VM_METHOD_POST|VM_METHOD_GET = POSTかGETのどちらか。
      * @param mix $validate_mode バリデータオプション
-     * @see prepare();
+     * @see EnviValidator::prepare()
      * @return void
      */
     public function autoPrepare($validation_name, $validator, $validator_chain = true, $trim = false, $post_only = 3, $validate_mode = false)
@@ -459,21 +544,28 @@ class EnviValidator
             $validate_mode
         );
     }
+    /* ----------------------------------------- */
 
     /**
-     * バリデート機能定義(手動)
+     * +-- バリデート機能定義(手動)
      *
      * 検証する入力データを手動で取得・定義して、新規にバリデータにかけます。
      *
-     * @param string,array $validation_name <pre>バリデートするフォームデータ名。
-     * array("データ名" => "フォーム名")
-     * 配列を指定することで、フォーム名をつけることができます。
-     * フォーム名は、エラー発生時にエラークラスに渡されます。</pre>
-     * @param string,array $validator バリデータ名,$this->getChainFormat()の結果
-     * @param string,bool,object,array,string,int $validation_data バリデートするデータ
+     * $validation_name に配列を指定することで、表示用のフォーム名をつけることができます。
+     * 表示用のフォーム名は、エラー発生時にエラークラスに渡されます。
+     *
+     * 例)
+     *
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     * array("データ名" => "表示用のフォーム名")
+     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     * @param string|array $validation_name バリデートするフォームデータ名。
+     * @param string|array $validator バリデータ名,$this->getChainFormat()の結果
+     * @param mixed $validation_data バリデートするデータ
      * @param bool $validator_chain エラーがあった場合に確認処理を継続するか
-     * @param bool,string,int,array $validate_mode バリデータオプション
-     * @see autoPrepare();
+     * @param mixed バリデータオプション
+     * @see EnviValidator::autoPrepare()
      * @return void
      */
     public function prepare($validation_name, $validator, $validation_data, $validator_chain = true, $validate_mode = false)
@@ -497,36 +589,38 @@ class EnviValidator
             trigger_error('Unknown validator selected', E_USER_ERROR);
         }
     }
+    /* ----------------------------------------- */
 
     /**
-     * ユーザー定義のバリデータを追加する
+     * +-- ユーザー定義のバリデータを追加する
      *
-     * execute()実行時に、<br>
-     * userFunction([検証されるデータ], [指定されたオプション]);<br>
-     * の形で、指定された関数にわたります。<br>
-     * ユーザー定義関数からは、正しい場合true・間違っている場合falseを返してください。<br>
+     * execute()実行時に、
+     * userFunction([検証されるデータ], [指定されたオプション]);
+     * の形で、指定された関数にわたります。
+     * ユーザー定義関数からは、正しい場合true・間違っている場合falseを返してください。
      *
      * @param string $validator_name 読み出しに使用するバリデータ名
      * @param string $function_name 関数名
      * @param string $error_message エラーメッセージ
      * @return void
      */
-    public function registerValidators($validator, $function_name, $error_message = false)
+    public function registerValidators($validator_name, $function_name, $error_message = false)
     {
         if (is_string($function_name) && !function_exists($function_name)) {
             trigger_error('No exists function selected', E_USER_ERROR);
         }
         if ($error_message) {
-            $this->error()->setUserErrorList($validator, $error_message);
+            $this->error()->setUserErrorList($validator_name, $error_message);
         }
 
-        $this->_register_validators[strtolower($validator)] = $function_name;
+        $this->_register_validators[strtolower($validator_name)] = $function_name;
     }
+    /* ----------------------------------------- */
 
     /**
-     * 検証に使用するバリデータを鎖状につなぎます。
+     * +-- 検証に使用するバリデータを鎖状につなぎます。
      *
-     * ひとつの入力データに対して、複数のバリデータを使いたい場合に使用します。<br>
+     * ひとつの入力データに対して、複数のバリデータを使いたい場合に使用します。
      * バリデータはchain()で呼び出された順番に、実行されます。
      *
      * @param string $validation_name バリデートするフォームデータ名
@@ -534,6 +628,8 @@ class EnviValidator
      * @param bool $validator_chain エラーの場合につなげてバリデート処理を行うか
      * @param bool,string,int,array $validate_mode バリデータオプション
      * @return void
+     * @see EnviValidator::prepare()
+     * @see EnviValidator::autoPrepare()
      */
     public function chain($validation_name, $validator, $validator_chain = true, $validate_mode = false)
     {
@@ -549,9 +645,10 @@ class EnviValidator
             $this->autoPrepare($validation_name, $validator, $validator_chain, $validate_mode);
         }
     }
+    /* ----------------------------------------- */
 
     /**
-     * チェインのフォーマットを作成します
+     * +-- チェインのフォーマットを作成します
      *
      * 入力検証のフォーマットを作成して、簡単に再利用可能にします。
      *
@@ -560,7 +657,7 @@ class EnviValidator
      * @param string,int $order チェインされる順番
      * @param bool $validator_chain エラーの場合につなげてバリデート処理を行うか
      * @param bool,string,int,array $validate_mode バリデータオプション
-     * @see getChainFormat()
+     * @see EnviValidator::getChainFormat()
      * @return void
      */
     public function setChainFormat($group, $validator, $order = 'AUTO', $validator_chain = true, $validate_mode = false)
@@ -577,23 +674,17 @@ class EnviValidator
                                                                 );
         }
     }
+    /* ----------------------------------------- */
 
     /**
-     * チェインのフォーマットを返します
+     * +-- チェインのフォーマットを返します
      *
      * setChainFormat()メソッドなどで指定された、フォーマットを返します。
-     * <code>
-     * $vm->autoPrepare(array("mail" => "メールアドレス", $vm->getChainFormat("mail"));
-     * $res = $vm->execute("mail");
-     * var_dump($vm->isError($res));
-     *
-     * return bool
-     * </code>
      *
      * @param string $group フォーマットグループ名
      * @see setChainFormat();
      * @see prepare();
-     * @see autoPrepare();
+     * @see EnviValidator::autoPrepare();
      * @return array
      */
     public function getChainFormat($group)
@@ -602,14 +693,14 @@ class EnviValidator
     }
 
     /**
-     * バリデータの使用をキャンセルする
+     * +-- バリデータの使用をキャンセルする
      *
-     * 一度チェインされたバリデータの使用をキャンセルします。<br>
+     * 一度チェインされたバリデータの使用をキャンセルします。
      * 全てのチェインを消す場合は、free()メソッドが高速です。
      *
      * @param string $validation_name バリデーション名
      * @param string $validator キャンセルするバリデータ
-     * @see free()
+     * @see EnviValidator::free()
      * @return void
      */
     public function unchain($validation_name, $validator)
@@ -621,57 +712,63 @@ class EnviValidator
             }
         }
     }
+    /* ----------------------------------------- */
 
     /**
-     * バリデート結果がエラーかどうかを判断する
+     * +--バリデート結果がエラーかどうかを判断する
      *
      * バリデート結果がエラーかどうかを判断し、実行結果はエラーの場合に、TRUEを返します。
      *
      * @param object,string,int,array $result execute()・executeAllの結果
-     * @return bool
+     * @return bool エラーかどうか
+     * @see EnviValidator::executeAll()
+     * @see EnviValidator::execute()
      */
     public function isError($result)
     {
         return $result instanceof $this->error_class;
-
     }
+    /* ----------------------------------------- */
 
     /**
-     * 初期化
+     * +-- 初期化
      *
-     * ValidatorMagicの初期化をします。<br>
+     * ValidatorMagicの初期化をします。
      * 全てのエラー、チェインは空になります。
      *
      * @return void
+     * @see EnviValidator::unchain()
      */
     public function free()
     {
         $this->_validation_list = array();
         self::$_error_object = null;
     }
+    /* ----------------------------------------- */
 
     /**
-     * 簡単にバリデートする
+     * +-- 簡単にバリデートする
      *
      * 入力データを簡単に検証します。
      * 正しければ、TRUE違っていれば、FALSEを返します。
      *
      * @param string $validator 使用するバリデータ
      * @param string,arrray $data バリデータにかけるデータ
-     * @param string,array $option バリデータオプション
-     * @return bool
+     * @param string|array $option バリデータオプション
+     * @return bool 正しいかどうか
      */
     public function validation($validator, $data, $option)
     {
         $validator = strtolower($validator);
         return $this->_validation($validator, $data, $option);
     }
+    /* ----------------------------------------- */
 
 
     /**
-     * エラーオブジェクトを直接指定する
+     * +-- エラーオブジェクトを直接指定する
      *
-     * @param object &$error_obj
+     * @param object $error_obj
      * @return void
      */
     public function setErrorObject($error_obj)
@@ -679,17 +776,19 @@ class EnviValidator
         self::$_error_object =& $error_obj;
         $this->error_class = get_class($error_obj);
     }
+    /* ----------------------------------------- */
 
     /**
-     * 空欄フォームの標準値を設定する
+     * +-- 空欄フォームの標準値を設定する
      *
-     * @param object $empty_form_data
+     * @param mixed $empty_form_data フォームデータが空欄の場合に使用するデータ
      * @return void
      */
     public function setEmptyFormData($empty_form_data)
     {
         $this->_empty_form_data = $empty_form_data;
     }
+    /* ----------------------------------------- */
 
     /**#@+
      * @access private
@@ -701,7 +800,7 @@ class EnviValidator
      *
      * @param string $validator 使用するバリデータ
      * @param string,arrray $data バリデータにかけるデータ
-     * @param string,array $option バリデータオプション
+     * @param string|array $option バリデータオプション
      * @access private
      * @return bool
      */
@@ -774,7 +873,7 @@ class EnviValidator
     /**
      * 再帰的にtrimする
      *
-     * @param string,array $validation_data trimするデータ
+     * @param string|array $validation_data trimするデータ
      *
      */
     protected function _trimmer(&$validation_data)
@@ -1989,8 +2088,8 @@ class ValidatorError
      * +-- デフォルトのエラーメッセージを変更します。
      *
      * @access      public
-     * @param       string $validator
-     * @param       string $error_message
+     * @param       string $validator 変更するバリデータ
+     * @param       string $error_message エラーメッセージ
      * @return      void
      */
     public function setUserErrorList($validator, $error_message)
@@ -2004,9 +2103,9 @@ class ValidatorError
      * +-- エラーテキストメッセージを出す
      *
      * @access      public
-     * @param       any $name
-     * @param       any $validator
-     * @return      void
+     * @param       string $name
+     * @param       string $validator
+     * @return      string エラーテキストメッセージ
      */
     public function getErrorText($name, $validator)
     {
@@ -2034,7 +2133,7 @@ class ValidatorError
     /* ----------------------------------------- */
 
     /**
-     * エラーのセット
+     * +-- エラーのセット
      *
      * @param string $name バリデーションチェイン名
      * @param string $form_name フォーム名
@@ -2062,9 +2161,10 @@ class ValidatorError
             $mess
         );
     }
+    /* ----------------------------------------- */
 
     /**
-     * エラーメッセージのセット
+     * +-- エラーメッセージのセット
      *
      * @param string $name バリデーションチェイン名
      * @param string $validator バリデータ名
@@ -2075,10 +2175,11 @@ class ValidatorError
     {
         $this->_error_message[$name][$validator] = $message;
     }
+    /* ----------------------------------------- */
 
 
     /**
-     * エラーメッセージのセット
+     * +-- エラーメッセージのセット
      *
      * @param string $name バリデーションチェイン名
      * @param string $validator バリデータ名
@@ -2089,9 +2190,10 @@ class ValidatorError
     {
         $this->_error_list[$name][$validator] = $message;
     }
+    /* ----------------------------------------- */
 
     /**
-     * エラーメッセージを受け取る
+     * +-- エラーメッセージを受け取る
      *
      * @param string,boolean $name エラーを取りたいバリデーションチェイン名。空にすると全て取得
      * @return array
@@ -2100,12 +2202,13 @@ class ValidatorError
     {
         return $name == false ? $this->_error_message : $this->_error_message[$name];
     }
+    /* ----------------------------------------- */
 
 
     /**
-     * Errorの詳細を取得します。
+     * +-- Errorの詳細を取得します。
      *
-     * @return array
+     * @return array エラー詳細配列の取得
      */
     public function getErrorDetail()
     {
@@ -2121,9 +2224,10 @@ class ValidatorError
         $res['count'] = $i;
         return $res;
     }
+    /* ----------------------------------------- */
 
     /**
-     * 配列をstring型に強制変換
+     * +-- 配列をstring型に強制変換
      *
      * @param array|string $arr 変換したい配列
      */
@@ -2134,4 +2238,5 @@ class ValidatorError
         }
         return $arr;
     }
+    /* ----------------------------------------- */
 }
