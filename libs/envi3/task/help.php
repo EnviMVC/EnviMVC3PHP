@@ -49,6 +49,8 @@ if (isOption('--help') || isOption('-h') || isOption('-?') || !isset($argv[1])) 
     cecho('unittest:', 33);
     cecho('    -go                                  ', 32, '\n       ユニットテストの実行(test)');
     cecho('    -help                                ', 32, '\n       マニュアルの表示');
+    cecho('    unittest-init テストグループ名       ', 32, '\n       テストグループをカレントディレクトリに追加する');
+    cecho('    unittest-add テストクラス名          ', 32, '\n       テストをカレントディレクトリに追加する');
 
 
     cecho('yml:', 33);
