@@ -68,10 +68,18 @@ class EnviSmartyRenderer
     public function setting($module_dir)
     {
         $this->Smarty = new Smarty;
-        $this->Smarty->compile_dir  = $this->_system_conf['DIRECTORY']['templatec'];
-        $this->Smarty->etc_dir      = $this->_system_conf['DIRECTORY']['templateetc'];
-        $this->Smarty->config_dir   = $this->_system_conf['DIRECTORY']['config'];
-        $this->Smarty->template_dir = $this->_system_conf['DIRECTORY']['modules'].$module_dir.DIRECTORY_SEPARATOR.'templates';
+        $this->Smarty->compile_dir  = isset($this->_system_conf['DIRECTORY']['template_compile']) ? $this->_system_conf['DIRECTORY']['template_compile'] : $this->_system_conf['DIRECTORY']['templatec'];
+        $this->Smarty->etc_dir      = isset($this->_system_conf['DIRECTORY']['template_etc']) ? $this->_system_conf['DIRECTORY']['template_etc'] : $this->_system_conf['DIRECTORY']['templateetc'];
+        $this->Smarty->config_dir   = isset($this->_system_conf['DIRECTORY']['template_config']) ? $this->_system_conf['DIRECTORY']['template_config'] : $this->_system_conf['DIRECTORY']['config'];
+
+
+        // キャッシュ
+        if (isset($this->_system_conf['DIRECTORY']['template_cache'])) {
+            $this->Smarty->cache_dir = $this->_system_conf['DIRECTORY']['template_cache'];
+        }
+
+        $this->Smarty->template_dir = $this->_system_conf['DIRECTORY']['modules'].$module_dir.DIRECTORY_SEPARATOR.$this->_system_conf['DIRECTORY']['templates'];
+        $this->Smarty->default_modifiers = array('escape');
         $this->Smarty->assign('Envi', Envi::singleton());
         $this->Smarty->assign('base_url', Envi::singleton()->getBaseUrl());
     }

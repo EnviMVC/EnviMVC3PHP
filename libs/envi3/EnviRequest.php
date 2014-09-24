@@ -229,7 +229,7 @@ class EnviRequest
             self::$_request_module_name = array_shift($exp_pathinfo);
         }
         // アクション名
-        if (count($exp_pathinfo)) {
+        if (count($exp_pathinfo) && $exp_pathinfo[0] !== '') {
             self::$_request_action_name = preg_replace("/\\.".$_system_conf['SYSTEM']['ext'].'$/', '', array_shift($exp_pathinfo));
         }
 

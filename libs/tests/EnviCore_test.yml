@@ -27,6 +27,7 @@ all:
 
     dirs:
       # テストファイルのディレクトリ
+      EnviCoreTest: "<?php echo $test_dir.DIRECTORY_SEPARATOR.$app_name.DIRECTORY_SEPARATOR.'EnviCoreTest'.DIRECTORY_SEPARATOR; ?>"
       EnviMathTest: "<?php echo $test_dir.DIRECTORY_SEPARATOR.$app_name.DIRECTORY_SEPARATOR.'EnviMathTest'.DIRECTORY_SEPARATOR; ?>"
       EnviValidatorTest: "<?php echo $test_dir.DIRECTORY_SEPARATOR.$app_name.DIRECTORY_SEPARATOR.'EnviValidatorTest'.DIRECTORY_SEPARATOR; ?>"
 

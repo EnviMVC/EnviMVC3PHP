@@ -5,7 +5,6 @@ SCHEMA:
   sample_table_name:
     # クラス名(省略可能。省略した場合はテーブル名のパスカルケース)
     class_name: "SampleClassName"
-
     # スキーマ情報
     schema:
       # カラム名
@@ -44,7 +43,7 @@ SCHEMA:
 
 DIRECTORY:
   # モデルを保存するdirectory
-  model_dir: "<?php $ds = DIRECTORY_SEPARATOR; echo realpath(ENVI_BASE_DIR."..{$ds}..{$ds}apps{$ds}{$app_name}{$ds}libs{$ds}models").$ds; ?>"
+  model_dir: "<?php $ds = DIRECTORY_SEPARATOR; echo realpath(realpath(dirname(dirname(__FILE__)))."{$ds}apps{$ds}{$app_name}{$ds}libs{$ds}models").$ds; ?>"
 
 SETTING:
   #デフォルトのインスタンス名
@@ -52,11 +51,19 @@ SETTING:
   #マジックメソッドを利用したSetterGetterを使用するかどうか
   default_magic_method: true
   # データーベース定義
-  database_yaml: "<?php echo realpath(ENVI_BASE_DIR."..{$ds}..{$ds}config{$ds}").$ds.$app_name?>_databases.yml"
+  database_yaml: "<?php echo realpath(dirname(dirname(__FILE__))).$ds.'config'.$ds.$app_name?>_databases.yml"
   # 環境
   env: "dev"
   # デフォルトのauto_schema
   default_auto_schema: true
   # auto_schemaの結果を反映した、yamlファイルを出力するかどうか
   reverse_yaml: true
-
+  
+  # OrMapperが所属するデフォルトのネームスペース
+  # PHP 5.3以降ではネームスペースが使用できるようになりました。
+  # model_name_space: models
+  model_name_space: ""
+  
+  # OrMapperのベースクラスがが所属するデフォルトのネームスペース
+  # model_base_name_space: models\om
+  model_base_name_space: ""

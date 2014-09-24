@@ -33,31 +33,6 @@ ob_end_clean();
 
 $config = spyc_load($buff);
 
-if (!is_dir($config['DIRECTORY']['model_dir'])) {
-    mkdir($config['DIRECTORY']['model_dir']);
-    echo $config['DIRECTORY']['model_dir']."\n";
-}
-$model_dir = $config['DIRECTORY']['model_dir'].DIRECTORY_SEPARATOR;
-$om_dir    = $model_dir.'om'.DIRECTORY_SEPARATOR;
-if (!is_dir($om_dir)) {
-    mkdir($om_dir);
-    echo $om_dir."\n";
-}
-
-
-ob_start();
-include $config['SETTING']['database_yaml'];
-$buff      = ob_get_contents();
-ob_end_clean();
-
-$database_yaml = spyc_load($buff);
-if (!isset($database_yaml[$config['SETTING']['env']])) {
-    $database_yaml[$config['SETTING']['env']] = array();
-}
-$database_yaml = array_merge((array)$database_yaml['all'], (array)$database_yaml[$config['SETTING']['env']]);
-
-
-$EnviDBInstance = NULL;
 function pascalize($string)
 {
     $string = strtolower($string);
@@ -67,7 +42,6 @@ function pascalize($string)
     return $string;
 }
 
-$getter_setter_text = file_get_contents($task_plugin_dir.$module.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.'getSet.class.php');
 
 $sql = '';
 foreach ($config['SCHEMA'] as $table_name => &$schema) {

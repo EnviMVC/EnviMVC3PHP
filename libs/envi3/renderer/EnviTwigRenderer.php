@@ -80,14 +80,32 @@ class EnviTwigRenderer
      */
     public function setting($module_dir)
     {
-        $this->compile_dir  = $this->_system_conf['DIRECTORY']['templatec'];
-        $this->etc_dir      = $this->_system_conf['DIRECTORY']['templateetc'];
-        $this->config_dir   = $this->_system_conf['DIRECTORY']['config'];
+        $this->compile_dir  = isset($this->_system_conf['DIRECTORY']['template_compile']) ? $this->_system_conf['DIRECTORY']['template_compile'] : $this->_system_conf['DIRECTORY']['templatec'];
+        $this->etc_dir      = isset($this->_system_conf['DIRECTORY']['template_etc']) ? $this->_system_conf['DIRECTORY']['template_etc'] : $this->_system_conf['DIRECTORY']['templateetc'];
+        $this->config_dir   = isset($this->_system_conf['DIRECTORY']['template_config']) ? $this->_system_conf['DIRECTORY']['template_config'] : $this->_system_conf['DIRECTORY']['config'];
+
+
         $this->template_dir = $this->_system_conf['DIRECTORY']['modules'].$module_dir.DIRECTORY_SEPARATOR.$this->_system_conf['DIRECTORY']['templates'];
 
         $this->loader = new Twig_Loader_Filesystem($this->template_dir);
+        if (isset($this->_system_conf['DIRECTORY']['common_templates'])) {
+            if (!is_array($this->_system_conf['DIRECTORY']['common_templates'])) {
+                foreach ($this->_system_conf['DIRECTORY']['common_templates'] as $item) {
+                    $this->loader->addPath($item);
+                }
+            } else {
+                $this->loader->addPath($this->_system_conf['DIRECTORY']['common_templates']);
+            }
+        }
+
         if (isset($this->_system_conf['DIRECTORY']['base_templates'])) {
-            $this->loader->addPath($this->_system_conf['DIRECTORY']['base_templates']);
+            if (!is_array($this->_system_conf['DIRECTORY']['base_templates'])) {
+                foreach ($this->_system_conf['DIRECTORY']['base_templates'] as $item) {
+                    $this->loader->addPath($item);
+                }
+            } else {
+                $this->loader->addPath($this->_system_conf['DIRECTORY']['base_templates']);
+            }
         }
         $this->twig   = new Twig_Environment($this->loader, array(
             'cache' => $this->compile_dir,

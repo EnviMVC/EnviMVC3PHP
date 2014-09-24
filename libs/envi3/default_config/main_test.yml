@@ -2,15 +2,20 @@ all:
   ## <?php $test_dir = dirname(__FILE__); ?>
   ## <?php $app_name = substr(basename(__FILE__), 0, strlen(basename(__FILE__))-9); ?>
 
-
+  # デフォルトのテストタイムアウト時間
   default_time_out: 1
-  no_color: false
-
+  # グループごとのタイムアウト時間
   time_out:
     small: 1
     medium: 5
     large:  10
     
+  # 色を付けるかどうか
+  no_color: false
+  # テスト毎にPHPプロセスを新規に立ち上げてテストする
+  # segmentation fault とかが出る場合はtrueにしてください
+  multi: false
+  
   # テストカバレッジ
   code_coverage:
     use: true

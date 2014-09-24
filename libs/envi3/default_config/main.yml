@@ -16,8 +16,24 @@ all:
     use_i18n: false
     ## defaultの国際化ファイル
     default_i18n: "ja"
+    ## HTMLタグを自動エスケープするタイプのレンダラ ##
+    ## Smarty
+    # renderer: "<?php echo ENVI_BASE_DIR; ?>renderer/EnviSmartySecureRenderer.php"
+    ## Smarty3
+    # renderer: "<?php echo ENVI_BASE_DIR; ?>renderer/EnviSmarty3SecureRenderer.php"
+    ## Twig
+    # renderer: "<?php echo ENVI_BASE_DIR; ?>renderer/EnviTwigSecureRenderer.php"
+    ## PHP
+    # renderer: "<?php echo ENVI_BASE_DIR; ?>renderer/EnviPHPSecureRenderer.php"
+    
+    ## HTMLタグを自動エスケープしないタイプのレンダラ ##
+    ## Smarty
     # renderer: "<?php echo ENVI_BASE_DIR; ?>renderer/EnviSmartyRenderer.php"
+    ## Smarty3
+    # renderer: "<?php echo ENVI_BASE_DIR; ?>renderer/EnviSmarty3Renderer.php"
+    ## Twig
     # renderer: "<?php echo ENVI_BASE_DIR; ?>renderer/EnviTwigRenderer.php"
+    ## PHP
     renderer: "<?php echo ENVI_BASE_DIR; ?>renderer/EnviPHPRenderer.php"
     auto_load_cache: true
 
@@ -42,20 +58,34 @@ all:
   ################################
   # ディレクトリに関する設定
   ################################
-## <?php $ds = DIRECTORY_SEPARATOR; $base = realpath(__FILE__."..{$ds}apps{$ds}{$app_name}").$ds; ?>
+## <?php $ds = DIRECTORY_SEPARATOR; $base = realpath(dirname(dirname(__FILE__)))."{$ds}apps{$ds}{$app_name}{$ds}"; ?>
 
     base: "<?php echo $base;?>"
     ## 通常のリクエストやforwardで飛ばされるモジュール
     modules: "<?php echo "{$base}modules{$ds}";?>"
     ## アクションチェイン専用のディレクトリ
     chain_modules: "<?php echo "{$base}chains{$ds}";?>"
-    templatec: "<?php echo "{$base}data{$ds}template.c{$ds}";?>"
-    templateetc: "<?php echo "{$base}data{$ds}template.etc{$ds}";?>"
+    # 設定ファイルのキャッシュ
     cache: "<?php echo realpath(ENVI_BASE_DIR."..{$ds}..{$ds}cache").$ds;?>"
-    config   : "<?php echo "{$base}template_config{$ds}";?>"
-    base_templates: "<?php echo "{$base}templates{$ds}";?>"
+    ## テンプレートのコンパイルキャッシュ
+    template_compile: "<?php echo "{$base}data{$ds}template.c{$ds}";?>"
+    ## テンプレートのetc
+    template_etc: "<?php echo "{$base}data{$ds}template.etc{$ds}";?>"
+    ## テンプレートキャッシュ
+    # template_cache   : "<?php echo "{$base}template_cache{$ds}";?>"
+    ## テンプレートconf
+    # template_config   : "<?php echo "{$base}template_config{$ds}";?>"
+    ## 基底テンプレート
+    # base_templates: "<?php echo "{$base}templates{$ds}";?>"
+    ## 共通テンプレート
+    # common_templates: 
+    #  - "<?php echo "{$base}templates{$ds}";?>"
+    
+    # アクション保存パス
     actions: "actions/"
+    # ビュー保存パス
     views: "views/"
+    # テンプレート保存パス
     templates: "templates/"
 
   EXTENSION:
@@ -79,15 +109,26 @@ all:
 
 ## 常にオートロードされるディレクトリ
   AUTOLOAD_CONSTANT:
-
     - "<?php echo ENVI_BASE_DIR.'vendor'.DIRECTORY_SEPARATOR;?>"
     - "<?php echo "{$base}libs{$ds}controller{$ds}";?>"
     - "<?php echo "{$base}libs{$ds}constant{$ds}";?>"
-## コールされた時にオートロードされるディレクトリ
+
+## コールされた時にオートロードされるディレクトリ(キャッシュあり)
   AUTOLOAD:
     - "<?php echo "{$base}libs{$ds}common{$ds}";?>"
-    - "<?php echo "{$base}libs{$ds}models{$ds}";?>"
-    - "<?php echo "{$base}libs{$ds}models{$ds}om{$ds}";?>"
+    # build-modelの名前空間対応をした場合は下記二項目を削除してください
+    - 
+      path: "<?php echo "{$base}libs{$ds}models{$ds}";?>"
+      is_psr: false
+    - 
+      path: "<?php echo "{$base}libs{$ds}models{$ds}om{$ds}";?>"
+      is_psr: false
+
+## コールされた時にオートロードされるディレクトリ(キャッシュなし。PSR-0準拠)
+  AUTOLOAD_PSR:
+    - "<?php echo "{$base}libs{$ds}";?>"
+
+
 
   MEMCACHE:
   ################################

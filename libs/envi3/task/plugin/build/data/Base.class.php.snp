@@ -1,4 +1,7 @@
 <?php
+%%model_base_name_space%%
+%%model_name_space_use%%
+
 /**
  * PropelPDO風のオブジェクトを作成するベースクラス
  *
@@ -39,6 +42,26 @@ class Base%%class_name%% extends EnviOrMapBase
     protected $default_instance_name = '%%instance_name%%';
 
 %%fk_cache_item%%
+
+
+    /**
+     * INSERT INTO時に自動更新される値
+     *
+     * @access      protected
+     * @var         var_type
+     */
+    protected $insert_date = '%%insert_date%%';
+    
+    /**
+     * INSERT INTOおよびUPDATE時に自動更新される値
+     *
+     * @access      protected
+     * @var         var_type
+     */
+    protected $update_date = '%%update_date%%';
+    
+
+
 
     /**
      * +-- コンストラクタ

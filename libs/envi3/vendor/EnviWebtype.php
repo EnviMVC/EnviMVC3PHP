@@ -481,7 +481,7 @@ class EnviWebType
                 $info['smaf']    = 124;
                 $info['pcm']     = true;
                 $info['grf']     = true;
-            break;
+                break;
             case self::PC:
             //PCの処理
                 $get_user = $this->getUserInfo();
@@ -493,7 +493,7 @@ class EnviWebType
                 $info['smaf']    = 124;
                 $info['pcm']     = true;
                 $info['grf']     = true;
-            break;
+                break;
             case self::VODAFONE:
             //Vodafoneの処理
                 $user_agent = explode('/', strtr($_SERVER['HTTP_USER_AGENT'], array(' ' => '/')));
@@ -534,7 +534,7 @@ class EnviWebType
                 }
                 list($info['width'], $info['higth']) = explode('*', $_SERVER['HTTP_X_JPHONE_DISPLAY']);
                 $info['device']                      = $_SERVER['HTTP_X_JPHONE_MSNAME'];
-            break;
+                break;
             case self::DOCOMO:
             //DOCOMOの場合
                 $info['uid']     = isset($_SERVER['HTTP_X_DCMGUID']) ? $_SERVER['HTTP_X_DCMGUID'] : false;
@@ -555,7 +555,7 @@ class EnviWebType
                 } else {
                     $info['size'] = 12000;
                 }
-            break;
+                break;
             case self::AU:
             case self::TUKA:
             //EZWEBの場合
@@ -602,7 +602,7 @@ class EnviWebType
                     if (isset($this->Envi_hdml_grf_map['$device'])) {$info['grf'] = TRUE;}
                     $info['smaf'] = $this->Envi_hdml_smaf_map['$device'];
                 }
-            break;
+                break;
             case self::IDO:
                 //旧KDDI端末
                 ini_set('default_mimetype', 'text/x-hdml');    // HDML mime-types is text/x-hdml
@@ -619,7 +619,7 @@ class EnviWebType
                 }
                 $info['smaf'] = isset($this->Envi_hdml_smaf_map[$dev]) ? $this->Envi_hdml_smaf_map[$dev] : 16;
 
-            break;
+                break;
             case self::LMODE:
             //L-modeの場合
                 $user_agent      =  explode('/', $_SERVER['HTTP_USER_AGENT']);
@@ -652,7 +652,7 @@ class EnviWebType
                     $info['ssl'] = FALSE;
                 }
 
-            break;
+                break;
             default:
                 $get_user = $this->getUserInfo();
                 $info['b_type']  = 'html';
@@ -663,7 +663,7 @@ class EnviWebType
                 $info['smaf']    = false;
                 $info['pcm']     = false;
                 $info['grf']     = false;
-            break;
+                break;
         }
         $this->_cash['getCharacter'] = $info;
         return $info;

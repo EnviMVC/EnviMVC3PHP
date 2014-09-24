@@ -16,11 +16,11 @@ if ($auto_schema) {
     foreach ($schema_arr as $k => $arr) {
         $schema['schema'][$arr['COLUMN_NAME']]['type']    = $arr['DATA_TYPE'];
         switch ($arr['DATA_DEFAULT']) {
-        case 'CURRENT_TIMESTAMP':
-            $arr['DATA_DEFAULT'] = NULL;
-        break;
-        default:
-            break;
+            case 'CURRENT_TIMESTAMP':
+                $arr['DATA_DEFAULT'] = NULL;
+                break;
+            default:
+                break;
         }
         if ($arr['DATA_SCALE'] === NULL) {
             $schema['schema'][$arr['COLUMN_NAME']]['type'] .= '('.$arr['DATA_LENGTH'].')';

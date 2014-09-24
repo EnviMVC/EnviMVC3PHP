@@ -31,6 +31,8 @@ cecho('    init-filesession [app name]                          ', 32, '\n      
 cecho('    init-module [app name] [module name]                 ', 32, '\n       モジュールの作成(module)');
 cecho('    init-action [app name] [module name] [action name] [return_str(Option)]  ', 32, '\n       アクションの作成(action)');
 cecho('    init-view [app name] [module name] [action name]     ', 32, '\n       ビューの作成(view)');
+cecho('    init-scaffold [column_name]:[data_type]:[form_name],([not_null]),([unique])     ', 32, '\n       自動的にベースファイルを作成します');
+cecho('    init-migratipn [app_name] [migration_name]            ', 32, '\n       マイグレーションクラスファイルを作成します。');
 
 exit;
 die;

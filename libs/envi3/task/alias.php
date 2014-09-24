@@ -27,4 +27,5 @@ $alias = array(
     'view' => array('init', 'view'),
     'test' => array('unittest', 'go'),
     'yml' => array('yml', 'test'),
+    'scaffold' => array('init', 'scaffold'),
 );

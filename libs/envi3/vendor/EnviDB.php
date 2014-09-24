@@ -889,18 +889,18 @@ class EnviDBIBase
         // table_fields置き換え
         $table_fields = $arr;
         switch ($mode) {
-        case EnviDB::AUTOQUERY_INSERT:
-            return 'INSERT INTO '.$table.' ('.$names.') VALUES ('.$values.')';
-        break;
-        case EnviDB::AUTOQUERY_INSERT_IGNORE:
-            return 'INSERT IGNORE INTO '.$table.' ('.$names.') VALUES ('.$values.')';
-        break;
-        case EnviDB::AUTOQUERY_REPLACE:
-            return 'REPLACE INTO '.$table.' ('.$names.') VALUES ('.$values.')';
-        break;
-        default:
-            throw new PDOException;
-        break;
+            case EnviDB::AUTOQUERY_INSERT:
+                return 'INSERT INTO '.$table.' ('.$names.') VALUES ('.$values.')';
+                break;
+            case EnviDB::AUTOQUERY_INSERT_IGNORE:
+                return 'INSERT IGNORE INTO '.$table.' ('.$names.') VALUES ('.$values.')';
+                break;
+            case EnviDB::AUTOQUERY_REPLACE:
+                return 'REPLACE INTO '.$table.' ('.$names.') VALUES ('.$values.')';
+                break;
+            default:
+                throw new PDOException;
+                break;
         }
     }
 

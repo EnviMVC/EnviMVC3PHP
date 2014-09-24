@@ -57,27 +57,27 @@ if (isset($argv[5])) {
         case 'success':
         case 'return-success':
             $return_str = 'return Envi::SUCCESS;';
-        break;
+            break;
         case 'default':
         case 'return-success':
             $return_str = 'return Envi::DEFAULT;';
-        break;
+            break;
         case 'error':
         case 'return-success':
             $return_str = 'return Envi::ERROR;';
-        break;
+            break;
         case 'conform':
         case 'return-success':
             $return_str = 'return Envi::CONFORM;';
-        break;
+            break;
         case 'commit':
         case 'return-success':
             $return_str = 'return Envi::COMMIT;';
-        break;
+            break;
         case 'none':
         case 'return-success':
             $return_str = 'return Envi::NONE;';
-        break;
+            break;
     }
 }
 

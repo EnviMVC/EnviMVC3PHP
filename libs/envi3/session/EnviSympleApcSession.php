@@ -76,34 +76,37 @@ class EnviSympleApcSession extends EnviSessionBase implements EnviSessionInterfa
     }
 
 
-
     public function sessionStart()
     {
         $this->sess_base_save_path = $this->_system_conf['SESSION']['sess_base_save_path'];
         $session_name = $this->_system_conf['SESSION']['cookie_name'];
-
+        session_name($session_name);
 
         $is_new_session = true;
         //セッションIDの正誤性をチェックする。
         if (isset($_COOKIE[$session_name])) {
-            $id  = $_COOKIE[$session_name];
-            $session_key = 'sess_'.$this->_system_conf['SESSION']['cookie_name'].$id;
-            if (apc_exists($session_key)) {
+            $key  = $_COOKIE[$session_name];
+            if (apc_fetch($key) === $key) {
                 $is_new_session = false;
             }
         }
-
         if ($is_new_session) {
-            while(true) {
-                $id = $this->newSession();
-                if (!apc_exists($id)) {
+            $i = 0;
+            while ($i++ < 30) {
+                $key = self::newSession();
+                if (!apc_fetch($key)) {
                     break;
                 }
             }
-            $session_key = 'sess_'.$this->_system_conf['SESSION']['cookie_name'].$id;
+            if ($i >= 30) {
+                throw new EnviException('do not start session');
+            }
         }
-        self::$_session_id = $session_key;
-        apc_store($session_key, $session_key, $this->_system_conf['SESSION']['cookie_lifetime']);
+        //セッション開始
+        self::$_session_id = $key;
+
+        apc_store($key, $key, $this->_system_conf['SESSION']['cookie_lifetime']);
+        setcookie(session_name(), $key, $_SERVER['REQUEST_TIME']+$this->_system_conf['SESSION']['cookie_lifetime'], '/');
     }
 
     public function getAttribute($key)

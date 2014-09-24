@@ -380,6 +380,12 @@ class EnviValidator
      */
     private $_register_validators = array();
 
+    /**
+     * +-- エラーオブジェクトを取得する
+     *
+     * @access      public
+     * @return      EnviValidatorError
+     */
     public function &error()
     {
         if(!is_object(self::$_error_object)) {
@@ -387,6 +393,7 @@ class EnviValidator
         }
         return self::$_error_object;
     }
+    /* ----------------------------------------- */
 
     /**#@-*/
 

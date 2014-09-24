@@ -255,18 +255,18 @@ class ParsePHP_Executer
         $ParsePHP = new ParsePHP;
 
         switch (true) {
-        case (isset($this->argv[1]) ? is_file($this->argv[1]) || is_dir($this->argv[1]) : false):
-            $this->refDo($this->argv[1], clone $ParsePHP);
-            break;
-        case $buffer = fgets(STDIN):
-            $contents = $buffer;
-            while (($buffer = fgets(STDIN)) !== false) {
-                $contents .= $buffer;
-            }
-            $ParsePHP->parse($contents);
-            break;
-         default:
-            break;
+            case (isset($this->argv[1]) ? is_file($this->argv[1]) || is_dir($this->argv[1]) : false):
+                $this->refDo($this->argv[1], clone $ParsePHP);
+                break;
+            case $buffer = fgets(STDIN):
+                $contents = $buffer;
+                while (($buffer = fgets(STDIN)) !== false) {
+                    $contents .= $buffer;
+                }
+                $ParsePHP->parse($contents);
+                break;
+             default:
+                break;
         }
     }
     /* ----------------------------------------- */

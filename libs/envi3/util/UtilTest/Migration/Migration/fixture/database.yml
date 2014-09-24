@@ -1,0 +1,13 @@
+all:
+  default_master:
+    params:
+    #DSN
+      dsn: "phptype=mysql&username=example&password=password&hostspec=localhost&database=envi_unit_testing"
+    # オブジェクトをリクエスト間で保持し続けるかどうか
+    # trueにしておくと、トランザクションなどの管理が楽になります
+      instance_pool: true
+    # Connection POOLのON OFF
+      connection_pool: false
+    # 接続時に実行するクエリ
+    # 必要ない場合は削除してください
+      initialize_query: "set names utf8;"

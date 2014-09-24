@@ -16,63 +16,66 @@ $system_log = $dir.$app_key.'system.log';
 $included_files_log = $dir.$app_key.'included_files.log';
 
 $cmd = 'tail -f';
-foreach ($get as $file)
-if ($file === 'console') {
-    @touch($console_log);
-    $cmd .= " {$console_log}";
+foreach ($get as $file) {
+    if ($file === 'console') {
+        @touch($console_log);
+        $cmd .= " {$console_log}";
+    }
+    if ($file === 'query') {
+        @touch($query_log);
+        $cmd .= " {$query_log}";
+    }
+    if ($file === 'system') {
+        @touch($system_log);
+        $cmd .= " {$system_log}";
+    }
+    if ($file === 'included_files') {
+        @touch($included_files_log);
+        $cmd .= " {$included_files_log}";
+    }
 }
-if ($file === 'query') {
-    @touch($query_log);
-    $cmd .= " {$query_log}";
-}
-if ($file === 'system') {
-    @touch($system_log);
-    $cmd .= " {$system_log}";
-}
-if ($file === 'included_files') {
-    @touch($included_files_log);
-    $cmd .= " {$included_files_log}";
-}
-
 $f = popen($cmd, 'r');
 while ($res = fgets($f)) {
     $res = trim($res);
     $mode = $get[0];
     if (strpos($res, '==>') === 0) {
         switch (true) {
-        case strpos($res, $console_log):
-            $mode = 'console';
-            echo $res."\n";
-            break;
-        case strpos($res, $query_log):
-            $mode = 'query';
-            echo $res."\n";
-            break;
-        case strpos($res, $system_log):
-            $mode = 'system';
-            echo $res."\n";
-            break;
-        case strpos($res, $included_files_log):
-            $mode = 'included_files';
-            echo $res."\n";
-            break;
+            case strpos($res, $console_log):
+                $mode = 'console';
+                echo $res."\n";
+                break;
+            case strpos($res, $query_log):
+                $mode = 'query';
+                echo $res."\n";
+                break;
+            case strpos($res, $system_log):
+                $mode = 'system';
+                echo $res."\n";
+                break;
+            case strpos($res, $included_files_log):
+                $mode = 'included_files';
+                echo $res."\n";
+                break;
+            default:
+                break;
         }
-    } else {
-        $res = @json_decode($res, true);
-        if (!$res) {
-            var_dump($res);
-            continue;
-        }
-        if ($filter && $mode !== 'included_files') {
-            $tmp = array();
-            foreach ($filter as $key) {
-                if (!isset($res[$key])) {
-                    continue;
-                }
-                $tmp[$key] = $res[$key];
-            }
-            $res = $tmp;
-        }
-        var_dump($res);
+        continue;
     }
+    $res = @json_decode($res, true);
+    if (!$res) {
+        var_dump($res);
+        continue;
+    }
+    if ($filter && $mode !== 'included_files') {
+        $tmp = array();
+        foreach ($filter as $key) {
+            if (!isset($res[$key])) {
+                continue;
+            }
+            $tmp[$key] = $res[$key];
+        }
+        $res = $tmp;
+    }
+    var_dump($res);
+
 }

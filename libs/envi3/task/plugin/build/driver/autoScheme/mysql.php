@@ -13,11 +13,11 @@ if ($auto_schema) {
     foreach ($schema_arr as $k => $arr) {
         $schema['schema'][$arr['Field']]['type']    = $arr['Type'];
         switch ($arr['Default']) {
-        case 'CURRENT_TIMESTAMP':
-            $arr['Default'] = NULL;
-        break;
-        default:
-            break;
+            case 'CURRENT_TIMESTAMP':
+                $arr['Default'] = NULL;
+                break;
+            default:
+                break;
         }
         $schema['schema'][$arr['Field']]['default'] = $arr['Default'];
 
