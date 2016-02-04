@@ -43,9 +43,9 @@ all:
   ################################
   # Routingの設定
   ################################
-    # -
-      # class_name: EnviDefaultRouter
-      # resource: "<?php echo ENVI_BASE_DIR."routers".DIRECTORY_SEPARATOR."EnviDefaultRouter.php";?>"
+    -
+      class_name: EnviDefaultRouter
+      resource: "<?php echo ENVI_BASE_DIR."routers".DIRECTORY_SEPARATOR."EnviDefaultRouter.php";?>"
 
 
   FILTER:

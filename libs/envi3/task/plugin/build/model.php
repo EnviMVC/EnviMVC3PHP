@@ -139,7 +139,7 @@ foreach ($config['SCHEMA'] as $table_name => &$schema) {
     $auto_increment = isset($schema['auto_increment']) ? $schema['auto_increment'] : '';
 
 
-    $sql = "SELECT * FROM {$table_name} ";
+    $sql = "SELECT * FROM __TABLE__ ";
     $func_args = array();
     $pkeys = array();
     $comma = '';

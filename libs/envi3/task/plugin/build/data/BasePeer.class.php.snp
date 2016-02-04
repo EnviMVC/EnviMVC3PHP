@@ -54,6 +54,14 @@ class Base%%class_name%%Peer
      */
     protected static $table_name = '%%table_name%%';
 
+    /**
+     * デフォルトのSuffix
+     *
+     * @access      protected
+     * @var         string
+     */
+    public static $default_suffix = NULL;
+
 
     /**
      * クエリリスト
@@ -240,7 +248,7 @@ class Base%%class_name%%Peer
 
         $dbi = $con ? $con : extension()->DBI()->getInstance('%%instance_name%%');
 
-        $res = $dbi->getRow('%%sql%%', array(%%args%%));
+        $res = $dbi->getRow(self::getReplacedTableName('%%sql%%'), array(%%args%%));
         if (!$res) {
             return false;
         }
@@ -264,7 +272,7 @@ class Base%%class_name%%Peer
     {
         $dbi = $con ? $con : extension()->DBI()->getInstance('%%instance_name%%');
 
-        $res = $dbi->getRow('%%sql%%', array(%%args%%));
+        $res = $dbi->getRow(self::getReplacedTableName('%%sql%%'), array(%%args%%));
         if (!$res) {
             return false;
         }
@@ -287,7 +295,7 @@ class Base%%class_name%%Peer
     {
         $dbi = $con ? $con : extension()->DBI()->getInstance('%%instance_name%%');
 
-        $res = $dbi->getRow('%%sql%% FOR UPDATE', array(%%args%%));
+        $res = $dbi->getRow(self::getReplacedTableName('%%sql%% FOR UPDATE'), array(%%args%%));
         if (!$res) {
             return false;
         }
@@ -348,7 +356,7 @@ class Base%%class_name%%Peer
 
         $dbi = $con ? $con : extension()->DBI()->getInstance('%%instance_name%%');
 
-        $res = $dbi->getRow('%%sql%%', array(%%args%%));
+        $res = $dbi->getRow(self::getReplacedTableName('%%sql%%'), array(%%args%%));
         $ormap = new %%class_name%%;
         if (!$res) {
             return $ormap ;
@@ -372,7 +380,7 @@ class Base%%class_name%%Peer
     {
         $dbi = $con ? $con : extension()->DBI()->getInstance('%%instance_name%%');
 
-        $res = $dbi->getRow('%%sql%%', array(%%args%%));
+        $res = $dbi->getRow(self::getReplacedTableName('%%sql%%'), array(%%args%%));
         $ormap = new %%class_name%%;
         if (!$res) {
             return $ormap;
@@ -395,7 +403,7 @@ class Base%%class_name%%Peer
     {
         $dbi = $con ? $con : extension()->DBI()->getInstance('%%instance_name%%');
 
-        $res = $dbi->getRow('%%sql%% FOR UPDATE', array(%%args%%));
+        $res = $dbi->getRow(self::getReplacedTableName('%%sql%% FOR UPDATE'), array(%%args%%));
         $ormap = new %%class_name%%;
         if (!$res) {
             return $ormap;
@@ -405,12 +413,31 @@ class Base%%class_name%%Peer
     }
     /* ----------------------------------------- */
 
-
-
+    /**
+     * +--  $sqlの__TABLE__を正しいテーブル名に置き換えて返す。
+     *
+     * @access      protected
+     * @static
+     * @param       string $sql
+     * @param       string $suffix OPTIONAL:NULL
+     * @return      string
+     */
+    protected static function getReplacedTableName($sql, $suffix = NULL)
+    {
+        $table_name = self::$table_name;
+        if ($suffix === NULL && self::$default_suffix !== NULL) {
+            $suffix = self::$default_suffix;
+        }
+        if ($suffix !== NULL) {
+            $table_name .= "_{$suffix}";
+        }
+        return str_replace(array('__TABLE__'), array($table_name), $sql);
+    }
+    /* ----------------------------------------- */
 
 
     /**
-     * +-- $sqlの__TABLE__を正しいテーブル名に置き換えて、返す。
+     * +-- $sqlの__TABLE__を正しいテーブル名に置き換えて、マルチカラムの処理を入れて返す。
      *
      * @access public
      * @static
@@ -420,10 +447,6 @@ class Base%%class_name%%Peer
      */
     final protected static function getReplacedSQL($sql, &$bind_array, $suffix = NULL)
     {
-        $table_name = self::$table_name;
-        if ($suffix !== NULL) {
-            $table_name .= "_{$suffix}";
-        }
         foreach ($bind_array as $column => $value) {
             if (!is_array($value)) {
                 continue;
@@ -436,8 +459,8 @@ class Base%%class_name%%Peer
             }
             $sql = preg_replace("/\\:{$column}([^a-z0-9A-Z])/", substr($add_query_str, 1)."\\1", $sql);
         }
-        return str_replace(array('__TABLE__'), array($table_name), $sql);
+        return self::getReplacedTableName($sql, $suffix);
     }
     /* ----------------------------------------- */
-    
+
 }

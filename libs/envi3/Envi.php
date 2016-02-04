@@ -698,7 +698,7 @@ class Envi
                 self::$debug &&
                 @filemtime($dir.$file) > @filemtime(ENVI_MVC_CACHE_PATH.$file.'.'.ENVI_ENV.'.envicc')
             )
-            ) {
+           ) {
             if (!is_file($dir.$file)) {
                 throw new EnviException('not such file '.$dir.$file);
             }
